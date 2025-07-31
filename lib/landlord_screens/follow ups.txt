@@ -1,0 +1,133 @@
+Here's a comprehensive list of information landlords should provide when uploading rental properties, designed to capture all essential details while maintaining a great user experience:
+
+### 1. **Property Basics**
+- Property title (e.g., "Sunny Downtown Studio")
+- Property type (Apartment, House, Shared Room, Studio, etc.)
+- Rent amount (per month)
+- Security deposit amount
+- Available move-in date
+
+### 2. **Property Details**
+- Number of bedrooms
+- Number of bathrooms
+- Total square footage/m²
+- Furnishing status (Furnished, Semi-furnished, Unfurnished)
+- Floor level (if applicable)
+- Total floors in building
+
+### 3. **Amenities & Features**
+- Heating type (Central, Electric, etc.)
+- Cooling type (AC, Ceiling Fans, etc.)
+- Kitchen appliances included
+- Laundry facilities (In-unit, Shared, None)
+- Parking availability (Garage, Street, Assigned Spot)
+- Pet policy (Allowed, Not Allowed, Restrictions)
+- Accessibility features (Elevator, Ramp, Wide Doorways)
+
+### 4. **Location Information**
+- Full address (for map placement)
+- Neighborhood description
+- Nearby landmarks
+- Transportation access (Bus stops, Subway, Parking)
+- Distance to key locations (Schools, Hospitals, Shopping)
+
+### 5. **Visual Documentation**
+- High-quality photos (minimum 5, maximum 20)
+- 360° virtual tour (optional but recommended)
+- Floor plan image
+- Video walkthrough
+
+### 6. **Utilities & Costs**
+- Utilities included in rent (Water, Gas, Electricity, Internet)
+- Average monthly utility costs if not included
+- Any additional fees (Maintenance, HOA, Parking)
+
+### 7. **Lease Terms**
+- Minimum lease duration
+- Lease type (Fixed-term, Month-to-month)
+- Application requirements (Credit check, Income verification)
+- Smoking policy
+
+### 8. **Property Rules**
+- Guest policy
+- Noise restrictions
+- Maintenance responsibilities
+- Subletting policy
+
+### 9. **Contact Information**
+- Preferred contact method
+- Showing availability schedule
+- Contact person name and role (Owner, Property Manager)
+
+### 10. **Certifications & Compliance**
+- Safety certifications (Fire alarms, CO detectors)
+- Building permits
+- Rental license number
+- Energy efficiency rating
+
+### 11. **Neighborhood Highlights**
+- Nearby parks/recreation
+- Restaurants and cafes
+- Grocery stores
+- Community features (Pool, Gym, Playground)
+
+### 12. **Unique Selling Points**
+- Recent renovations
+- Special features (Balcony, View, Smart Home Tech)
+- Why this property stands out
+
+### Implementation Considerations:
+
+1. **Step-by-Step Upload Form**:
+```dart
+enum PropertyType { apartment, house, sharedRoom, studio, other }
+
+class UploadFormSteps {
+  static const List<String> steps = [
+    "Basic Info",
+    "Property Details",
+    "Amenities",
+    "Location",
+    "Photos & Media",
+    "Pricing",
+    "Rules & Terms",
+    "Review"
+  ];
+}
+```
+
+2. **Required vs Optional Fields**:
+```dart
+class RequiredFields {
+  static const List<String> mandatory = [
+    'title',
+    'propertyType',
+    'bedrooms',
+    'bathrooms',
+    'rentAmount',
+    'address',
+    'photos'
+  ];
+}
+```
+
+3. **Smart Defaults**:
+- Prefill common values based on location/property type
+- Suggest competitive pricing based on similar listings
+- Automatically detect amenities from photos (AI-powered)
+
+4. **Validation Rules**:
+- Minimum photo requirements (5 photos)
+- Price range validation based on location
+- Address verification through map integration
+
+5. **Progress Tracking**:
+```dart
+LinearProgressIndicator(
+  value: currentStep / totalSteps,
+)
+```
+
+This comprehensive list ensures landlords provide all necessary information while maintaining a streamlined user experience. The data collected would directly populate the detailed property listings that tenants see in the app, creating rich, informative listings that help tenants make informed decisions.
+
+Would you like me to design the actual property upload form UI based on this structure?
