@@ -43,6 +43,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: TextField(
           controller: _searchController,
           decoration: InputDecoration(

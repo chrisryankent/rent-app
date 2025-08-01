@@ -131,6 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final ScrollController? controller = widget.scrollController;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'RoomFinder',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -484,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // All listings grid
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 sliver: _showMapView
                     ? SliverToBoxAdapter(
                         child: Container(
@@ -528,35 +529,34 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       )
-                    : SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.75,
-                            ),
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          if (index >= _rooms.length) return const SizedBox();
-                          final room = _rooms[index];
-                          return RoomCard(
-                            room: room,
-                            isNew: index % 3 == 0,
-                            isFavorite: widget.favorites.contains(room),
-                            onFavorite: () => _toggleFavorite(room),
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RoomDetailScreen(
-                                  room: room,
-                                  onFavorite: () => _toggleFavorite(room),
-                                  isFavorite: widget.favorites.contains(room),
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            if (index >= _rooms.length) return const SizedBox();
+                            final room = _rooms[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                              child: RoomCard(
+                                room: room,
+                                isNew: index % 3 == 0,
+                                isFavorite: widget.favorites.contains(room),
+                                onFavorite: () => _toggleFavorite(room),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RoomDetailScreen(
+                                      room: room,
+                                      onFavorite: () => _toggleFavorite(room),
+                                      isFavorite: widget.favorites.contains(room),
+                                    ),
+                                  ),
                                 ),
+                                isRecommended: false,
                               ),
-                            ),
-                            isRecommended: false,
-                          );
-                        }, childCount: _rooms.length),
+                            );
+                          },
+                          childCount: _rooms.length,
+                        ),
                       ),
               ),
             ],

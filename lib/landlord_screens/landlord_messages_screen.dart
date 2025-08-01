@@ -1,71 +1,42 @@
-// TODO Implement this library.
-// messages_screen.dart
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:rental_connect/tenant_screens/models/user.dart';
-import 'chat_screen.dart';
-import 'models/message.dart';
+import 'package:rental_connect/landlord_screens/landlord_chat_screen.dart';
 
-class MessagesScreen extends StatelessWidget {
-  const MessagesScreen({super.key});
+class LandlordMessagesScreen extends StatelessWidget {
+  const LandlordMessagesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final List<Message> messages = [
-      Message(
+    final List<_LandlordMessage> messages = [
+      _LandlordMessage(
         id: '1',
-        sender: User(
-          id: '1',
-          name: 'Alex Morgan',
-          email: 'alex@example.com',
-          phone: '1234567890',
-          type: UserType.landlord,
-          isVerified: true,
-        ),
+        tenantName: 'Alex Morgan',
+        isVerified: true,
         content: 'Hi, is the apartment still available?',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        isSent: false,
-        status: MessageStatus.sent,
-        isSystem: false,
+        time: '10:30',
+        unread: true,
       ),
-      Message(
+      _LandlordMessage(
         id: '2',
-        sender: User(
-          id: '2',
-          name: 'Property Management',
-          email: 'pm@example.com',
-          phone: '2345678901',
-          type: UserType.landlord,
-          isVerified: true,
-        ),
-        content: 'Your viewing has been confirmed for tomorrow',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        isSent: false,
-        status: MessageStatus.read,
-        isSystem: false,
+        tenantName: 'Sarah Johnson',
+        isVerified: false,
+        content: 'Can I schedule a viewing for tomorrow?',
+        time: '09:15',
+        unread: false,
       ),
-      Message(
+      _LandlordMessage(
         id: '3',
-        sender: User(
-          id: '3',
-          name: 'Sarah Johnson',
-          email: 'sarah@example.com',
-          phone: '3456789012',
-          type: UserType.landlord,
-          isVerified: false,
-        ),
-        content: 'I can show you the property today at 4pm',
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        isSent: false,
-        status: MessageStatus.delivered,
-        isSystem: false,
+        tenantName: 'Property Management',
+        isVerified: true,
+        content: 'Tenant has confirmed the appointment.',
+        time: 'Yesterday',
+        unread: false,
       ),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: const Text('Messages'),
         backgroundColor: theme.appBarTheme.backgroundColor,
         foregroundColor: theme.appBarTheme.foregroundColor,
@@ -77,7 +48,6 @@ class MessagesScreen extends StatelessWidget {
         itemCount: messages.length,
         itemBuilder: (context, index) {
           final message = messages[index];
-          final isUnread = !message.isSent;
           return ListTile(
             leading: const CircleAvatar(
               backgroundImage: AssetImage('lib/assets/rent.webp'),
@@ -86,15 +56,15 @@ class MessagesScreen extends StatelessWidget {
             title: Row(
               children: [
                 Text(
-                  message.sender.name,
+                  message.tenantName,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: isUnread
+                    color: message.unread
                         ? theme.colorScheme.primary
                         : theme.textTheme.bodyLarge?.color,
                   ),
                 ),
-                if (message.sender.isVerified)
+                if (message.isVerified)
                   Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: Icon(
@@ -110,7 +80,7 @@ class MessagesScreen extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: isUnread
+                color: message.unread
                     ? theme.colorScheme.primary
                     : theme.textTheme.bodyMedium?.color,
               ),
@@ -121,13 +91,13 @@ class MessagesScreen extends StatelessWidget {
                 Text(
                   message.time,
                   style: TextStyle(
-                    color: isUnread
+                    color: message.unread
                         ? theme.colorScheme.primary
                         : theme.textTheme.bodySmall?.color,
                     fontSize: 12,
                   ),
                 ),
-                if (isUnread)
+                if (message.unread)
                   Container(
                     margin: const EdgeInsets.only(top: 4),
                     width: 8,
@@ -142,7 +112,11 @@ class MessagesScreen extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatScreen(landlord: message.sender),
+                builder: (context) =>
+                    LandlordChatScreen(
+                      tenantName: message.tenantName,
+                      tenantPhone: '', // TODO: Replace with actual tenant phone if available
+                    ),
               ),
             ),
           );
@@ -150,4 +124,21 @@ class MessagesScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _LandlordMessage {
+  final String id;
+  final String tenantName;
+  final bool isVerified;
+  final String content;
+  final String time;
+  final bool unread;
+  const _LandlordMessage({
+    required this.id,
+    required this.tenantName,
+    required this.isVerified,
+    required this.content,
+    required this.time,
+    required this.unread,
+  });
 }

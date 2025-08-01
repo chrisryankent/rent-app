@@ -1,6 +1,7 @@
 // chat_screen.dart
 import 'package:flutter/material.dart';
 import 'package:rental_connect/tenant_screens/models/user.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'models/message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -156,7 +157,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.call, color: theme.colorScheme.primary),
-            onPressed: () {},
+            onPressed: () => _launchDialer(widget.landlord.phone),
           ),
           IconButton(
             icon: Icon(Icons.more_vert, color: theme.colorScheme.primary),
@@ -796,5 +797,16 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.insert(0, reply);
       });
     });
+  }
+
+  void _launchDialer(String phoneNumber) async {
+    final uri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await launcher.launchUrl(uri)) {
+      // success
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not launch dialer')),
+      );
+    }
   }
 }
