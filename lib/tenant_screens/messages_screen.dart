@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:rental_connect/tenant_screens/models/room.dart';
+import 'package:rental_connect/tenant_screens/models/user.dart';
 import 'chat_screen.dart';
 import 'models/message.dart';
 
@@ -14,49 +15,52 @@ class MessagesScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final List<Message> messages = [
       Message(
+        id: '1',
         sender: User(
+          id: '1',
           name: 'Alex Morgan',
-          image: 'assets/user1.jpg',
+          email: 'alex@example.com',
+          phone: '1234567890',
+          type: UserType.landlord,
           isVerified: true,
-          id: '',
         ),
-        preview: 'Hi, is the apartment still available?',
-        time: '10:30 AM',
-        isRead: false,
-        isSystem: false,
+        content: 'Hi, is the apartment still available?',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+        isSent: false,
         status: MessageStatus.sent,
-        id: '',
-        content: '',
+        isSystem: false,
       ),
       Message(
+        id: '2',
         sender: User(
+          id: '2',
           name: 'Property Management',
-          image: 'assets/user2.jpg',
+          email: 'pm@example.com',
+          phone: '2345678901',
+          type: UserType.landlord,
           isVerified: true,
-          id: '',
         ),
-        preview: 'Your viewing has been confirmed for tomorrow',
-        time: 'Yesterday',
-        isRead: true,
-        isSystem: false,
+        content: 'Your viewing has been confirmed for tomorrow',
+        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+        isSent: false,
         status: MessageStatus.read,
-        id: '',
-        content: '',
+        isSystem: false,
       ),
       Message(
+        id: '3',
         sender: User(
+          id: '3',
           name: 'Sarah Johnson',
-          image: 'assets/user3.jpg',
+          email: 'sarah@example.com',
+          phone: '3456789012',
+          type: UserType.landlord,
           isVerified: false,
-          id: '',
         ),
-        preview: 'I can show you the property today at 4pm',
-        time: 'Wed',
-        isRead: true,
-        isSystem: false,
+        content: 'I can show you the property today at 4pm',
+        timestamp: DateTime.now().subtract(const Duration(days: 1)),
+        isSent: false,
         status: MessageStatus.delivered,
-        id: '',
-        content: '',
+        isSystem: false,
       ),
     ];
 
@@ -75,8 +79,8 @@ class MessagesScreen extends StatelessWidget {
           final message = messages[index];
           final isUnread = !message.isSent;
           return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: AssetImage(message.sender.image),
+            leading: const CircleAvatar(
+              child: Icon(Icons.person, size: 28),
               radius: 28,
             ),
             title: Row(
@@ -102,7 +106,7 @@ class MessagesScreen extends StatelessWidget {
               ],
             ),
             subtitle: Text(
-              message.preview ?? '',
+              message.content,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

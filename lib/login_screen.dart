@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rental_connect/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -135,7 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Don't have an account? "),
-                  TextButton(onPressed: () {}, child: const Text('Sign Up')),
+                  TextButton(onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+                  }, child: const Text('Sign Up')),
                 ],
               ),
             ],

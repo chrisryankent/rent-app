@@ -1,5 +1,5 @@
 // models/message.dart
-import 'package:rental_connect/tenant_screens/models/room.dart';
+import 'package:rental_connect/tenant_screens/models/user.dart';
 
 enum MessageStatus { sent, delivered, read }
 
@@ -12,8 +12,6 @@ class Message {
   final MessageStatus? status;
   final bool isSystem;
 
-  var preview;
-
   Message({
     required this.id,
     required this.sender,
@@ -21,13 +19,13 @@ class Message {
     DateTime? timestamp,
     this.isSent = false,
     this.status,
-    this.isSystem = false, required String preview, required String time, required bool isRead,
+    this.isSystem = false,
   }) : timestamp = timestamp ?? DateTime.now();
 
   String get time {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inHours < 1) {
@@ -39,3 +37,6 @@ class Message {
     }
   }
 }
+
+// Update all usages of User in Message to use the new User model (id, name, email, phone, type, isVerified)
+// For sample/demo messages, use dummy email/phone/type values as needed.

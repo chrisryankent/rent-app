@@ -96,18 +96,20 @@ class _MainAppState extends State<MainApp> {
                     icon: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(4), // reduced from 8
                       decoration: BoxDecoration(
                         color: _currentIndex == 0
                             ? theme.colorScheme.primary.withOpacity(0.12)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          10,
+                        ), // slightly less rounded
                       ),
                       child: Icon(
                         _currentIndex == 0
                             ? Icons.home_filled
                             : Icons.home_outlined,
-                        size: 26,
+                        size: 22, // slightly smaller
                       ),
                     ),
                     label: 'Home',
@@ -116,18 +118,18 @@ class _MainAppState extends State<MainApp> {
                     icon: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: _currentIndex == 1
                             ? theme.colorScheme.primary.withOpacity(0.12)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         _currentIndex == 1
                             ? Icons.favorite
                             : Icons.favorite_border,
-                        size: 26,
+                        size: 22,
                       ),
                     ),
                     label: 'Favorites',
@@ -136,18 +138,18 @@ class _MainAppState extends State<MainApp> {
                     icon: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: _currentIndex == 2
                             ? theme.colorScheme.primary.withOpacity(0.12)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         _currentIndex == 2
                             ? Icons.chat_bubble
                             : Icons.chat_bubble_outline,
-                        size: 26,
+                        size: 22,
                       ),
                     ),
                     label: 'Messages',
@@ -156,18 +158,18 @@ class _MainAppState extends State<MainApp> {
                     icon: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: _currentIndex == 3
                             ? theme.colorScheme.primary.withOpacity(0.12)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         _currentIndex == 3
                             ? Icons.person
                             : Icons.person_outline,
-                        size: 26,
+                        size: 22,
                       ),
                     ),
                     label: 'Profile',
