@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rental_connect/tenant_screens/bottom_navbar.dart';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -22,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -87,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Image.asset(
-                      'assets/logo.png',
+                      'lib/assets/rent.webp', // fallback to a valid asset
                       width: 150,
                       height: 150,
                     ),
