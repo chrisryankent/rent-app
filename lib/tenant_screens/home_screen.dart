@@ -9,6 +9,8 @@ import 'models/room.dart';
 import 'widgets/room_card.dart';
 import 'widgets/filter_chip.dart';
 import 'search_screen.dart';
+import 'deals_screen.dart';
+import 'top_picks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showMapView = false;
   double _priceRange = 2000;
   String _selectedCategory = 'All';
+  bool _showRecent = false;
 
   void _toggleFavorite(Room room) {
     setState(() {
@@ -56,6 +59,60 @@ class _HomeScreenState extends State<HomeScreen> {
         _recentSearches.removeLast();
       }
     });
+  }
+
+  void _onSearchTap() {
+    setState(() {
+      _showRecent = true;
+    });
+  }
+
+  void _onSearchSubmit(String value) {
+    _addRecentSearch(value);
+    setState(() {
+      _showRecent = false;
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchScreen(initialQuery: value),
+      ),
+    );
+  }
+
+  Future<void> _onVoiceSearch() async {
+    // Simulate voice input for now
+    final voiceResult = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Voice Search'),
+        content: const Text('Pretend you spoke: "Downtown"'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Downtown'),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (voiceResult != null && voiceResult.isNotEmpty) {
+      _searchController.text = voiceResult;
+      _onSearchSubmit(voiceResult);
+    }
+  }
+
+  void _goToDeals() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DealsScreen()),
+    );
+  }
+
+  void _goToTopPicks() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TopPicksScreen()),
+    );
   }
 
   @override
@@ -93,206 +150,274 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          // Search and quick filters
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search for rooms, locations...',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: theme.inputDecorationTheme.fillColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              // Search and quick filters
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search for rooms, locations...',
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: theme.inputDecorationTheme.fillColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 0,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.mic),
+                            onPressed: _onVoiceSearch,
+                          ),
+                        ),
+                        onTap: _onSearchTap,
+                        onSubmitted: _onSearchSubmit,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.mic),
-                        onPressed: () {},
-                      ),
-                    ),
-                    onSubmitted: (value) {
-                      _addRecentSearch(value);
-                    },
+                      if (_showRecent && _recentSearches.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: SizedBox(
+                            height: 36,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: _recentSearches
+                                  .map(
+                                    (search) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
+                                      ),
+                                      child: Chip(
+                                        label: GestureDetector(
+                                          onTap: () => _onSearchSubmit(search),
+                                          child: Text(search),
+                                        ),
+                                        deleteIcon: const Icon(
+                                          Icons.close,
+                                          size: 18,
+                                        ),
+                                        onDeleted: () {
+                                          setState(
+                                            () =>
+                                                _recentSearches.remove(search),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 40,
+                ),
+              ),
+              // Categories
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 50,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
-                        FilterChip(
-                          label: const Text('Furnished'),
-                          selected: false,
-                          onSelected: (val) {},
+                        _buildCategory(
+                          'All',
+                          Icons.all_inclusive,
+                          isSelected: _selectedCategory == 'All',
                         ),
-                        const SizedBox(width: 8),
-                        FilterChip(
-                          label: const Text('Pet Friendly'),
-                          selected: false,
-                          onSelected: (val) {},
+                        _buildCategory(
+                          'Apartments',
+                          Icons.apartment,
+                          isSelected: _selectedCategory == 'Apartments',
                         ),
-                        const SizedBox(width: 8),
-                        FilterChip(
-                          label: const Text('Parking'),
-                          selected: false,
-                          onSelected: (val) {},
+                        _buildCategory(
+                          'Shared',
+                          Icons.people,
+                          isSelected: _selectedCategory == 'Shared',
                         ),
-                        const SizedBox(width: 8),
-                        FilterChip(
-                          label: const Text('Utilities Included'),
-                          selected: false,
-                          onSelected: (val) {},
+                        _buildCategory(
+                          'Studio',
+                          Icons.home_work,
+                          isSelected: _selectedCategory == 'Studio',
+                        ),
+                        _buildCategory(
+                          'Luxury',
+                          Icons.star,
+                          isSelected: _selectedCategory == 'Luxury',
+                        ),
+                        _buildCategory(
+                          'Near Me',
+                          Icons.location_on,
+                          isSelected: _selectedCategory == 'Near Me',
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  if (_recentSearches.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SizedBox(
-                        height: 36,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: _recentSearches
-                              .map(
-                                (search) => Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Chip(
-                                    label: Text(search),
-                                    onDeleted: () {
-                                      setState(
-                                        () => _recentSearches.remove(search),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-
-          // Categories
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverToBoxAdapter(
-              child: SizedBox(
-                height: 50,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildCategory(
-                      'All',
-                      Icons.all_inclusive,
-                      isSelected: _selectedCategory == 'All',
-                    ),
-                    _buildCategory(
-                      'Apartments',
-                      Icons.apartment,
-                      isSelected: _selectedCategory == 'Apartments',
-                    ),
-                    _buildCategory(
-                      'Shared',
-                      Icons.people,
-                      isSelected: _selectedCategory == 'Shared',
-                    ),
-                    _buildCategory(
-                      'Studio',
-                      Icons.home_work,
-                      isSelected: _selectedCategory == 'Studio',
-                    ),
-                    _buildCategory(
-                      'Luxury',
-                      Icons.star,
-                      isSelected: _selectedCategory == 'Luxury',
-                    ),
-                    _buildCategory(
-                      'Near Me',
-                      Icons.location_on,
-                      isSelected: _selectedCategory == 'Near Me',
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ),
 
-          // Deals of the day
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+              // Deals of the day
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Deals of the Day',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red[50],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              '24h left',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TextButton(
+                        onPressed: _goToDeals,
+                        child: const Text('View All'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Special deals carousel
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 260,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 2,
+                    itemBuilder: (context, index) {
+                      final room = _rooms[index];
+                      return Container(
+                        width: 280,
+                        margin: EdgeInsets.only(
+                          left: index == 0 ? 16 : 8,
+                          right: index == 1 ? 16 : 8,
+                        ),
+                        child: Stack(
+                          children: [
+                            RoomCard(
+                              room: room,
+                              isFeatured: true,
+                              isFavorite: _favorites.contains(room),
+                              onFavorite: () => _toggleFavorite(room),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RoomDetailScreen(
+                                    room: room,
+                                    onFavorite: () => _toggleFavorite(room),
+                                    isFavorite: _favorites.contains(room),
+                                  ),
+                                ),
+                              ),
+                              isNew: true,
+                              isRecommended: true,
+                            ),
+                            Positioned(
+                              top: 10,
+                              left: 10,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  '10% OFF',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // Top picks for you
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Deals of the Day',
+                        'Top Picks for You',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          '24h left',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      TextButton(
+                        onPressed: _goToTopPicks,
+                        child: const Text('See More'),
                       ),
                     ],
                   ),
-                  TextButton(onPressed: () {}, child: const Text('View All')),
-                ],
+                ),
               ),
-            ),
-          ),
 
-          // Special deals carousel
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 260,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 2,
-                itemBuilder: (context, index) {
-                  final room = _rooms[index];
-                  return Container(
-                    width: 280,
-                    margin: EdgeInsets.only(
-                      left: index == 0 ? 16 : 8,
-                      right: index == 1 ? 16 : 8,
-                    ),
-                    child: Stack(
-                      children: [
-                        RoomCard(
+              // Recommended properties
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 220,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 3,
+                    itemBuilder: (context, index) {
+                      final room = _rooms[index + 1];
+                      return Container(
+                        width: 280,
+                        margin: EdgeInsets.only(
+                          left: index == 0 ? 16 : 8,
+                          right: index == 2 ? 16 : 8,
+                        ),
+                        child: RoomCard(
                           room: room,
-                          isFeatured: true,
+                          isRecommended: true,
                           isFavorite: _favorites.contains(room),
                           onFavorite: () => _toggleFavorite(room),
                           onTap: () => Navigator.push(
@@ -306,195 +431,124 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           isNew: true,
-                          isRecommended: true,
                         ),
-                        Positioned(
-                          top: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              '10% OFF',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // Top picks for you
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Top Picks for You',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      );
+                    },
                   ),
-                  TextButton(onPressed: () {}, child: const Text('See More')),
-                ],
+                ),
               ),
-            ),
-          ),
 
-          // Recommended properties
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 220,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  final room = _rooms[index + 1];
-                  return Container(
-                    width: 280,
-                    margin: EdgeInsets.only(
-                      left: index == 0 ? 16 : 8,
-                      right: index == 2 ? 16 : 8,
-                    ),
-                    child: RoomCard(
-                      room: room,
-                      isRecommended: true,
-                      isFavorite: _favorites.contains(room),
-                      onFavorite: () => _toggleFavorite(room),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RoomDetailScreen(
-                            room: room,
-                            onFavorite: () => _toggleFavorite(room),
-                            isFavorite: _favorites.contains(room),
-                          ),
-                        ),
-                      ),
-                      isNew: true,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // All listings header
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'All Listings',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  Row(
+              // All listings header
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.filter_list, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Max: \$${_priceRange.toInt()}',
-                        style: const TextStyle(fontSize: 14),
+                      const Text(
+                        'All Listings',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // All listings grid
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: _showMapView
-                ? SliverToBoxAdapter(
-                    child: Container(
-                      height: 400,
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Row(
                         children: [
-                          const Icon(Icons.map, size: 64, color: Colors.blue),
-                          const SizedBox(height: 16),
+                          const Icon(Icons.filter_list, size: 18),
+                          const SizedBox(width: 4),
                           Text(
-                            'Map View Showing ${_rooms.length} Properties',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _toggleView,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                            ),
-                            child: const Text(
-                              'Switch to List View',
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            'Max: \$${_priceRange.toInt()}',
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
-                    ),
-                  )
-                : SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
-                        ),
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final room = _rooms[index];
-                      return RoomCard(
-                        room: room,
-                        isNew: index % 3 == 0,
-                        isFavorite: _favorites.contains(room),
-                        onFavorite: () => _toggleFavorite(room),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RoomDetailScreen(
-                              room: room,
-                              onFavorite: () => _toggleFavorite(room),
-                              isFavorite: _favorites.contains(room),
-                            ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // All listings grid
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: _showMapView
+                    ? SliverToBoxAdapter(
+                        child: Container(
+                          height: 400,
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.map,
+                                size: 64,
+                                color: Colors.blue,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Map View Showing ${_rooms.length} Properties',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _toggleView,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Switch to List View',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        isRecommended: true,
-                      );
-                    }, childCount: _rooms.length),
-                  ),
+                      )
+                    : SliverGrid(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.75,
+                            ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final room = _rooms[index];
+                          return RoomCard(
+                            room: room,
+                            isNew: index % 3 == 0,
+                            isFavorite: _favorites.contains(room),
+                            onFavorite: () => _toggleFavorite(room),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RoomDetailScreen(
+                                  room: room,
+                                  onFavorite: () => _toggleFavorite(room),
+                                  isFavorite: _favorites.contains(room),
+                                ),
+                              ),
+                            ),
+                            isRecommended: true,
+                          );
+                        }, childCount: _rooms.length),
+                      ),
+              ),
+            ],
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {}, // No action needed since save dialog is removed
+        onPressed: () {},
         backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
         child: const Icon(Icons.save, color: Colors.white),
       ),
