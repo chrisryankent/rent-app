@@ -60,12 +60,12 @@ class Room {
   static List<Room> get sampleData => [
     Room(
       id: '1',
-      title: 'Modern Studio in Downtown',
+      title: 'property1.jpg',
       description:
           'Beautiful studio apartment with city views and modern amenities. Close to public transport and shopping centers. Pets are allowed with additional deposit.',
       price: 1250,
       location: 'Downtown, New York',
-      imageUrl: 'assets/room1.jpg',
+      imageUrl: 'lib/assets/property1.jpg',
       bedrooms: 1,
       bathrooms: 1,
       size: 650,
@@ -76,7 +76,7 @@ class Room {
       reviews: 24,
       distance: 0.3,
       postedDate: DateTime.now().subtract(const Duration(days: 1)),
-      images: ['assets/room1.jpg', 'assets/room1_1.jpg', 'assets/room1_2.jpg'],
+      images: ['lib/assets/property1.jpg'],
       landlord: User(
         id: '1',
         name: 'Alex Morgan',
@@ -88,12 +88,12 @@ class Room {
     ),
     Room(
       id: '2',
-      title: 'Cozy Shared Apartment',
+      title: 'property1.jpg',
       description:
           'Spacious shared apartment with friendly roommates. Perfect for students or young professionals. Utilities included in the rent.',
       price: 750,
       location: 'University District, Boston',
-      imageUrl: 'assets/room2.jpg',
+      imageUrl: 'lib/assets/property1.jpg',
       bedrooms: 2,
       bathrooms: 2,
       size: 1200,
@@ -104,7 +104,7 @@ class Room {
       reviews: 18,
       distance: 0.8,
       postedDate: DateTime.now().subtract(const Duration(days: 3)),
-      images: ['assets/room2.jpg', 'assets/room2_1.jpg', 'assets/room2_2.jpg'],
+      images: ['lib/assets/property1.jpg'],
       landlord: User(
         id: '2',
         name: 'Sarah Johnson',
@@ -116,12 +116,12 @@ class Room {
     ),
     Room(
       id: '3',
-      title: 'Luxury Waterfront Apartment',
+      title: 'property1.jpg',
       description:
           'Stunning waterfront property with panoramic views. High-end finishes and premium amenities including gym, pool, and concierge service.',
       price: 3200,
       location: 'Harbor Front, Miami',
-      imageUrl: 'assets/room3.jpg',
+      imageUrl: 'lib/assets/property1.jpg',
       bedrooms: 2,
       bathrooms: 2,
       size: 1400,
@@ -132,7 +132,7 @@ class Room {
       reviews: 36,
       distance: 1.2,
       postedDate: DateTime.now().subtract(const Duration(hours: 5)),
-      images: ['assets/room3.jpg', 'assets/room3_1.jpg', 'assets/room3_2.jpg'],
+      images: ['lib/assets/property1.jpg'],
       landlord: User(
         id: '3',
         name: 'Property Management',

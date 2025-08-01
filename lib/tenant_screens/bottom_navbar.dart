@@ -4,6 +4,7 @@ import 'home_screen.dart';
 import 'favorites_screen.dart';
 import 'messages_screen.dart';
 import 'profile_screen.dart';
+import 'models/room.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -18,12 +19,17 @@ class _MainAppState extends State<MainApp> {
   double _lastOffset = 0;
   final ScrollController _scrollController = ScrollController();
 
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    const FavoritesScreen(favorites: []),
-    const MessagesScreen(),
-    const ProfileScreen(),
-  ];
+  final List<Room> _favorites = [];
+
+  void _toggleFavorite(Room room) {
+    setState(() {
+      if (_favorites.contains(room)) {
+        _favorites.remove(room);
+      } else {
+        _favorites.add(room);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -53,6 +59,16 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final List<Widget> pages = [
+      HomeScreen(
+        scrollController: _scrollController,
+        favorites: _favorites,
+        onToggleFavorite: _toggleFavorite,
+      ),
+      FavoritesScreen(favorites: _favorites),
+      MessagesScreen(),
+      ProfileScreen(),
+    ];
     return Scaffold(
       body: Stack(
         children: [
@@ -63,12 +79,12 @@ class _MainAppState extends State<MainApp> {
               }
               return false;
             },
-            child: _pages[_currentIndex] is ScrollView
+            child: pages[_currentIndex] is ScrollView
                 ? PrimaryScrollController(
                     controller: _scrollController,
-                    child: _pages[_currentIndex],
+                    child: pages[_currentIndex],
                   )
-                : _pages[_currentIndex],
+                : pages[_currentIndex],
           ),
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
@@ -81,6 +97,10 @@ class _MainAppState extends State<MainApp> {
                   theme.bottomNavigationBarTheme.backgroundColor ??
                   theme.cardColor,
               elevation: 8,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
               child: BottomNavigationBar(
                 currentIndex: _currentIndex,
                 onTap: (index) => setState(() => _currentIndex = index),

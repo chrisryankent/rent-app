@@ -104,27 +104,47 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const CircleAvatar(child: Icon(Icons.person)),
+            const CircleAvatar(
+              backgroundImage: AssetImage('lib/assets/rent.webp'),
+            ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.landlord.name,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.landlord.name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (widget.landlord.isVerified)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.verified,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-                Text(
-                  _isTyping ? 'Typing...' : 'Online now',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _isTyping
-                        ? theme.colorScheme.primary
-                        : Colors.green[600],
+                  Text(
+                    _isTyping ? 'Typing...' : 'Online now',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _isTyping
+                          ? theme.colorScheme.primary
+                          : Colors.green[600],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -158,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.asset(
-                    'assets/property1.jpg',
+                    'lib/assets/property1.jpg',
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
@@ -283,7 +303,10 @@ class _ChatScreenState extends State<ChatScreen> {
             : MainAxisAlignment.start,
         children: [
           if (!message.isSent && !isSystem)
-            const CircleAvatar(child: Icon(Icons.person), radius: 16),
+            const CircleAvatar(
+              backgroundImage: AssetImage('lib/assets/rent.webp'),
+              radius: 16,
+            ),
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,

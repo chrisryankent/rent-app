@@ -2,7 +2,6 @@
 // messages_screen.dart
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:rental_connect/tenant_screens/models/room.dart';
 import 'package:rental_connect/tenant_screens/models/user.dart';
 import 'chat_screen.dart';
 import 'models/message.dart';
@@ -80,7 +79,7 @@ class MessagesScreen extends StatelessWidget {
           final isUnread = !message.isSent;
           return ListTile(
             leading: const CircleAvatar(
-              child: Icon(Icons.person, size: 28),
+              backgroundImage: AssetImage('lib/assets/rent.webp'),
               radius: 28,
             ),
             title: Row(

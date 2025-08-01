@@ -1,19 +1,23 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
 import 'room_detail_screen.dart';
-import 'favorites_screen.dart';
-import 'messages_screen.dart';
-import 'profile_screen.dart';
 import 'compare_screen.dart';
 import 'models/room.dart';
 import 'widgets/room_card.dart';
-import 'widgets/filter_chip.dart';
 import 'search_screen.dart';
 import 'deals_screen.dart';
 import 'top_picks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final ScrollController? scrollController;
+  final List<Room> favorites;
+  final void Function(Room) onToggleFavorite;
+  const HomeScreen({
+    super.key,
+    this.scrollController,
+    required this.favorites,
+    required this.onToggleFavorite,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -22,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final List<Room> _rooms = Room.sampleData;
-  final List<Room> _favorites = [];
   final List<String> _recentSearches = [
     'Downtown',
     'Near University',
@@ -35,13 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showRecent = false;
 
   void _toggleFavorite(Room room) {
-    setState(() {
-      if (_favorites.contains(room)) {
-        _favorites.remove(room);
-      } else {
-        _favorites.add(room);
-      }
-    });
+    widget.onToggleFavorite(room);
   }
 
   void _toggleView() {
@@ -115,9 +112,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _refreshRooms() async {
+    setState(() {
+      // Optionally show a loading indicator here
+    });
+    // Simulate a network fetch delay
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      // In production, fetch from backend or Firebase here
+      _rooms.clear();
+      _rooms.addAll(Room.sampleData); // Replace with fetched data
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final ScrollController? controller = widget.scrollController;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -153,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           CustomScrollView(
+            controller: controller,
             slivers: [
               // Search and quick filters
               SliverPadding(
@@ -318,8 +330,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 260,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 2,
+                    itemCount: _rooms.length >= 2 ? 2 : _rooms.length,
                     itemBuilder: (context, index) {
+                      if (index >= _rooms.length) return const SizedBox();
                       final room = _rooms[index];
                       return Container(
                         width: 280,
@@ -332,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             RoomCard(
                               room: room,
                               isFeatured: true,
-                              isFavorite: _favorites.contains(room),
+                              isFavorite: widget.favorites.contains(room),
                               onFavorite: () => _toggleFavorite(room),
                               onTap: () => Navigator.push(
                                 context,
@@ -340,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => RoomDetailScreen(
                                     room: room,
                                     onFavorite: () => _toggleFavorite(room),
-                                    isFavorite: _favorites.contains(room),
+                                    isFavorite: widget.favorites.contains(room),
                                   ),
                                 ),
                               ),
@@ -406,9 +419,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 220,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 3,
+                    itemCount: _rooms.length >= 4 ? 3 : (_rooms.length - 1).clamp(0, 3),
                     itemBuilder: (context, index) {
-                      final room = _rooms[index + 1];
+                      final safeIndex = (index + 1) < _rooms.length ? (index + 1) : index;
+                      if (safeIndex >= _rooms.length) return const SizedBox();
+                      final room = _rooms[safeIndex];
                       return Container(
                         width: 280,
                         margin: EdgeInsets.only(
@@ -418,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: RoomCard(
                           room: room,
                           isRecommended: true,
-                          isFavorite: _favorites.contains(room),
+                          isFavorite: widget.favorites.contains(room),
                           onFavorite: () => _toggleFavorite(room),
                           onTap: () => Navigator.push(
                             context,
@@ -426,7 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context) => RoomDetailScreen(
                                 room: room,
                                 onFavorite: () => _toggleFavorite(room),
-                                isFavorite: _favorites.contains(room),
+                                isFavorite: widget.favorites.contains(room),
                               ),
                             ),
                           ),
@@ -522,11 +537,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               childAspectRatio: 0.75,
                             ),
                         delegate: SliverChildBuilderDelegate((context, index) {
+                          if (index >= _rooms.length) return const SizedBox();
                           final room = _rooms[index];
                           return RoomCard(
                             room: room,
                             isNew: index % 3 == 0,
-                            isFavorite: _favorites.contains(room),
+                            isFavorite: widget.favorites.contains(room),
                             onFavorite: () => _toggleFavorite(room),
                             onTap: () => Navigator.push(
                               context,
@@ -534,11 +550,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 builder: (context) => RoomDetailScreen(
                                   room: room,
                                   onFavorite: () => _toggleFavorite(room),
-                                  isFavorite: _favorites.contains(room),
+                                  isFavorite: widget.favorites.contains(room),
                                 ),
                               ),
                             ),
-                            isRecommended: true,
+                            isRecommended: false,
                           );
                         }, childCount: _rooms.length),
                       ),
@@ -547,10 +563,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
-        child: const Icon(Icons.save, color: Colors.white),
+      floatingActionButton: SizedBox(
+        height: 44,
+        width: 44,
+        child: FloatingActionButton(
+          onPressed: _refreshRooms,
+          backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
+          child: const Icon(Icons.refresh, color: Colors.white, size: 22),
+        ),
       ),
     );
   }
