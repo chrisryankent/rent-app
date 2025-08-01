@@ -31,14 +31,21 @@ class _ChatScreenState extends State<ChatScreen> {
         content: 'Hi, is the apartment still available?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
         isSent: true,
-        status: MessageStatus.read, preview: '', time: '', isRead: true, isSystem: false,
+        status: MessageStatus.read,
+        preview: '',
+        time: '',
+        isRead: true,
+        isSystem: false,
       ),
       Message(
         id: '2',
         sender: widget.landlord,
         content: 'Yes, it is! When would you like to view it?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 28)),
-        isSent: false, preview: '', time: '', isRead: true,
+        isSent: false,
+        preview: '',
+        time: '',
+        isRead: true,
       ),
       Message(
         id: '3',
@@ -46,21 +53,30 @@ class _ChatScreenState extends State<ChatScreen> {
         content: 'Would tomorrow at 2pm work?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
         isSent: true,
-        status: MessageStatus.delivered, preview: '', time: '', isRead: true,
+        status: MessageStatus.delivered,
+        preview: '',
+        time: '',
+        isRead: true,
       ),
       Message(
         id: '4',
         sender: widget.landlord,
         content: 'That works for me. I\'ll send you the address',
         timestamp: DateTime.now().subtract(const Duration(minutes: 22)),
-        isSent: false, preview: '', time: '', isRead: false,
+        isSent: false,
+        preview: '',
+        time: '',
+        isRead: false,
       ),
       Message(
         id: '5',
         sender: widget.landlord,
         content: 'Here is the address: 123 Main St, Downtown',
         timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
-        isSent: false, preview: '', time: '', isRead: true,
+        isSent: false,
+        preview: '',
+        time: '',
+        isRead: true,
       ),
       Message(
         id: '6',
@@ -68,46 +84,57 @@ class _ChatScreenState extends State<ChatScreen> {
         content: 'Great! Looking forward to seeing it.',
         timestamp: DateTime.now().subtract(const Duration(minutes: 18)),
         isSent: true,
-        status: MessageStatus.sent, preview: '', time: '', isRead: false,
+        status: MessageStatus.sent,
+        preview: '',
+        time: '',
+        isRead: false,
       ),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
-            CircleAvatar(
-              backgroundImage: AssetImage(widget.landlord.image),
-            ),
+            CircleAvatar(backgroundImage: AssetImage(widget.landlord.image)),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   widget.landlord.name,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 Text(
                   _isTyping ? 'Typing...' : 'Online now',
                   style: TextStyle(
                     fontSize: 12,
-                    color: _isTyping ? Colors.blue : Colors.green[600],
+                    color: _isTyping
+                        ? theme.colorScheme.primary
+                        : Colors.green[600],
                   ),
                 ),
               ],
             ),
           ],
         ),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: theme.appBarTheme.foregroundColor,
+        elevation: theme.appBarTheme.elevation,
+        iconTheme: theme.appBarTheme.iconTheme,
+        titleTextStyle: theme.appBarTheme.titleTextStyle,
         actions: [
           IconButton(
-            icon: const Icon(Icons.call, color: Colors.blue),
+            icon: Icon(Icons.call, color: theme.colorScheme.primary),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.blue),
+            icon: Icon(Icons.more_vert, color: theme.colorScheme.primary),
             onPressed: () => _showMoreOptions(context),
           ),
         ],
@@ -118,8 +145,9 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue[50],
-              border: const Border(bottom: BorderSide(color: Colors.black12)),),
+              color: theme.colorScheme.primary.withOpacity(0.08),
+              border: Border(bottom: BorderSide(color: theme.dividerColor)),
+            ),
             child: Row(
               children: [
                 ClipRRect(
@@ -136,15 +164,17 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Modern Downtown Studio',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '\$1,250/month',
-                        style: TextStyle(
-                          color: Colors.blue[700],
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -152,13 +182,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.info_outline, color: Colors.blue),
+                  icon: Icon(
+                    Icons.info_outline,
+                    color: theme.colorScheme.primary,
+                  ),
                   onPressed: () {},
                 ),
               ],
             ),
           ),
-          
           // Chat messages
           Expanded(
             child: AnimatedList(
@@ -172,15 +204,18 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          
           // Input area
-          _buildMessageInput(),
+          _buildMessageInput(theme),
         ],
       ),
     );
   }
 
-  Widget _buildMessageItem(Message message, Animation<double> animation, int index) {
+  Widget _buildMessageItem(
+    Message message,
+    Animation<double> animation,
+    int index,
+  ) {
     return SizeTransition(
       sizeFactor: animation,
       child: Dismissible(
@@ -190,12 +225,12 @@ class _ChatScreenState extends State<ChatScreen> {
           // Save the deleted message and its index
           _recentlyDeleted = message;
           _recentlyDeletedIndex = _messages.length - 1 - index;
-          
+
           // Remove from list
           setState(() {
             _messages.removeAt(_recentlyDeletedIndex!);
           });
-          
+
           // Show undo snackbar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -203,9 +238,13 @@ class _ChatScreenState extends State<ChatScreen> {
               action: SnackBarAction(
                 label: 'UNDO',
                 onPressed: () {
-                  if (_recentlyDeleted != null && _recentlyDeletedIndex != null) {
+                  if (_recentlyDeleted != null &&
+                      _recentlyDeletedIndex != null) {
                     setState(() {
-                      _messages.insert(_recentlyDeletedIndex!, _recentlyDeleted!);
+                      _messages.insert(
+                        _recentlyDeletedIndex!,
+                        _recentlyDeleted!,
+                      );
                     });
                     _recentlyDeleted = null;
                     _recentlyDeletedIndex = null;
@@ -229,13 +268,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageBubble(Message message) {
     final isSystem = message.isSystem;
-    
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment:
-            message.isSent ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: message.isSent
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
           if (!message.isSent && !isSystem)
             CircleAvatar(
@@ -253,20 +293,22 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSystem 
-                  ? Colors.grey[100]
-                  : message.isSent
-                    ? Colors.blue[50]
-                    : Colors.grey[200],
+                color: isSystem
+                    ? theme.colorScheme.primary.withOpacity(0.05)
+                    : message.isSent
+                    ? theme.colorScheme.primary.withOpacity(0.15)
+                    : theme.cardColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
                   bottomLeft: Radius.circular(message.isSent ? 16 : 0),
                   bottomRight: Radius.circular(message.isSent ? 0 : 16),
                 ),
-                border: isSystem 
-                  ? Border.all(color: Colors.blue[100]!)
-                  : null,
+                border: isSystem
+                    ? Border.all(
+                        color: theme.colorScheme.primary.withOpacity(0.2),
+                      )
+                    : null,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,13 +316,17 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (isSystem) ...[
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today, size: 14, color: Colors.blue),
+                        Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Viewing Scheduled',
-                          style: TextStyle(
+                          style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue[700],
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ],
@@ -289,9 +335,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                   Text(
                     message.content,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isSystem ? Colors.blue[700] : null,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: isSystem ? theme.colorScheme.primary : null,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -300,9 +345,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Text(
                         message.time,
-                        style: TextStyle(
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.hintColor,
                           fontSize: 10,
-                          color: Colors.grey[600],
                         ),
                       ),
                       if (message.isSent && !isSystem) ...[
@@ -311,12 +356,12 @@ class _ChatScreenState extends State<ChatScreen> {
                           Icons.done_all,
                           size: 12,
                           color: message.status == MessageStatus.read
-                              ? Colors.blue
+                              ? theme.colorScheme.primary
                               : message.status == MessageStatus.delivered
-                                ? Colors.green
-                                : Colors.grey,
+                              ? Colors.green
+                              : theme.disabledColor,
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ],
@@ -328,12 +373,12 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageInput() {
+  Widget _buildMessageInput(ThemeData theme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+        color: theme.cardColor,
+        border: Border(top: BorderSide(color: theme.dividerColor)),
       ),
       child: Column(
         children: [
@@ -343,10 +388,10 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildQuickReply('Can I see it today?'),
-                _buildQuickReply('What\'s the address?'),
-                _buildQuickReply('Is it pet friendly?'),
-                _buildQuickReply('Available next month?'),
+                _buildQuickReply('Can I see it today?', theme),
+                _buildQuickReply('What\'s the address?', theme),
+                _buildQuickReply('Is it pet friendly?', theme),
+                _buildQuickReply('Available next month?', theme),
               ],
             ),
           ),
@@ -354,7 +399,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.add, color: Colors.blue),
+                icon: Icon(Icons.add, color: theme.colorScheme.primary),
                 onPressed: () => _showAttachmentOptions(context),
               ),
               Expanded(
@@ -363,12 +408,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   decoration: InputDecoration(
                     hintText: 'Type a message...',
                     filled: true,
-                    fillColor: Colors.grey[100],
+                    fillColor: theme.inputDecorationTheme.fillColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                   ),
                   onChanged: (value) {
                     // Simulate typing indicator
@@ -384,15 +432,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.blue),
+                icon: Icon(Icons.camera_alt, color: theme.colorScheme.primary),
                 onPressed: () {},
               ),
               IconButton(
-                icon: const Icon(Icons.mic, color: Colors.blue),
+                icon: Icon(Icons.mic, color: theme.colorScheme.primary),
                 onPressed: () {},
               ),
               IconButton(
-                icon: const Icon(Icons.send, color: Colors.blue),
+                icon: Icon(Icons.send, color: theme.colorScheme.primary),
                 onPressed: _sendMessage,
               ),
             ],
@@ -402,45 +450,11 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _sendMessage() {
-    if (_messageController.text.isNotEmpty) {
-      final newMessage = Message(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        sender: User(id: 'user1', name: 'You', image: ''),
-        content: _messageController.text,
-        isSent: true,
-        status: MessageStatus.sent, preview: '', time: '', isRead: false,
-      );
-      
-      // Add to the beginning of the list since we're using reverse
-      setState(() {
-        _messages.insert(0, newMessage);
-      });
-      
-      _messageController.clear();
-      
-      // Simulate reply after delay
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() {
-            _messages.insert(0, Message(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              sender: widget.landlord,
-              content: 'Thanks for your message!',
-              isSent: false,
-              status: MessageStatus.sent, preview: '', time: '', isRead: false,
-            ));
-          });
-        }
-      });
-    }
-  }
-
-  Widget _buildQuickReply(String text) {
+  Widget _buildQuickReply(String text, ThemeData theme) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: Material(
-        color: Colors.blue[50],
+        color: theme.colorScheme.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -450,9 +464,11 @@ class _ChatScreenState extends State<ChatScreen> {
               sender: User(id: 'user1', name: 'You', image: ''),
               content: text,
               isSent: true,
-              status: MessageStatus.sent, preview: '', time: '', isRead: false,
+              status: MessageStatus.sent,
+              preview: '',
+              time: '',
+              isRead: false,
             );
-            
             setState(() {
               _messages.insert(0, newMessage);
             });
@@ -461,7 +477,9 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
               text,
-              style: TextStyle(color: Colors.blue[700]),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
             ),
           ),
         ),
@@ -535,7 +553,9 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Clear Chat History'),
-          content: const Text('Are you sure you want to delete all messages in this chat? This action cannot be undone.'),
+          content: const Text(
+            'Are you sure you want to delete all messages in this chat? This action cannot be undone.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -615,7 +635,7 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context) {
         DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
         TimeOfDay selectedTime = const TimeOfDay(hour: 14, minute: 0);
-        
+
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -624,7 +644,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.calendar_today, color: Colors.blue),
+                    leading: const Icon(
+                      Icons.calendar_today,
+                      color: Colors.blue,
+                    ),
                     title: const Text('Select Date'),
                     trailing: Text(
                       "${selectedDate.toLocal()}".split(' ')[0],
@@ -676,15 +699,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         backgroundColor: Colors.green,
                       ),
                     );
-                    
+
                     // Add system message to chat
                     final systemMessage = Message(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       sender: User(id: 'system', name: 'System', image: ''),
-                      content: 'Viewing scheduled for ${selectedDate.toLocal().toString().split(' ')[0]} at ${selectedTime.format(context)}',
-                      isSystem: true, preview: '', time: '', isRead: false,
+                      content:
+                          'Viewing scheduled for ${selectedDate.toLocal().toString().split(' ')[0]} at ${selectedTime.format(context)}',
+                      isSystem: true,
+                      preview: '',
+                      time: '',
+                      isRead: false,
                     );
-                    
+
                     setState(() {
                       _messages.insert(0, systemMessage);
                     });
@@ -697,5 +724,45 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
+  }
+
+  void _sendMessage() {
+    final content = _messageController.text.trim();
+    if (content.isEmpty) return;
+
+    final message = Message(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      sender: User(id: 'user1', name: 'You', image: ''),
+      content: content,
+      timestamp: DateTime.now(),
+      isSent: true,
+      status: MessageStatus.sent,
+      preview: '',
+      time: '',
+      isRead: false,
+    );
+
+    setState(() {
+      _messages.insert(0, message);
+      _messageController.clear();
+    });
+
+    // Simulate receiving a reply
+    Future.delayed(const Duration(seconds: 1), () {
+      final reply = Message(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        sender: widget.landlord,
+        content: 'Thank you for your message! I will get back to you soon.',
+        timestamp: DateTime.now().add(const Duration(seconds: 1)),
+        isSent: false,
+        preview: '',
+        time: '',
+        isRead: true,
+      );
+
+      setState(() {
+        _messages.insert(0, reply);
+      });
+    });
   }
 }

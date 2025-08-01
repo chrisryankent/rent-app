@@ -1,6 +1,5 @@
 // room_detail_screen.dart
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
 import 'models/room.dart';
 import 'chat_screen.dart';
 import 'widgets/filter_chip.dart';
@@ -32,6 +31,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -54,7 +54,9 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                     right: 16,
                     child: IconButton(
                       icon: Icon(
-                        widget.isFavorite ? Iconsax.heart5 : Iconsax.heart,
+                        widget.isFavorite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
                         color: widget.isFavorite ? Colors.red : Colors.white,
                         size: 28,
                       ),
@@ -65,7 +67,6 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
               ),
             ),
           ),
-          
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
@@ -77,56 +78,56 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                     Expanded(
                       child: Text(
                         widget.room.title,
-                        style: const TextStyle(
-                          fontSize: 24,
+                        style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                     Text(
                       '\$${widget.room.price}/mo',
-                      style: const TextStyle(
-                        fontSize: 24,
+                      style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: Colors.blue,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                   ],
                 ),
-                
                 // Location
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Iconsax.location, size: 18, color: Colors.grey[600]),
+                    Icon(Icons.location_on, size: 18, color: theme.hintColor),
                     const SizedBox(width: 8),
                     Text(
                       widget.room.location,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.hintColor,
                       ),
                     ),
                   ],
                 ),
-                
                 // Rating and time
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.amber.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         children: [
-                          Icon(Iconsax.star, size: 16, color: Colors.amber),
+                          Icon(Icons.star, size: 16, color: Colors.amber),
                           const SizedBox(width: 4),
                           Text(
                             '${widget.room.rating} (${widget.room.reviews} reviews)',
-                            style: const TextStyle(fontWeight: FontWeight.w500),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -134,109 +135,126 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                     const SizedBox(width: 12),
                     Text(
                       widget.room.timeAgo,
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.hintColor,
+                      ),
                     ),
                   ],
                 ),
-                
                 // Features
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Features',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
                   children: [
-                    FeatureChip(icon: Iconsax.user_square, text: '${widget.room.size} sqft'),
-                    FeatureChip(icon: Iconsax.battery_disable, text: '${widget.room.bedrooms} Bedrooms'),
-                    FeatureChip(icon: Iconsax.gallery, text: '${widget.room.bathrooms} Bathrooms'),
-                    FeatureChip(icon: Iconsax.car, text: widget.room.parking ? 'Parking' : 'No Parking'),
-                    FeatureChip(icon: Iconsax.pet, text: widget.room.petFriendly ? 'Pet Friendly' : 'No Pets'),
-                    FeatureChip(icon: Iconsax.wifi, text: 'WiFi Included'),
+                    FeatureChip(
+                      icon: Icons.square_foot,
+                      text: '${widget.room.size} sqft',
+                    ),
+                    FeatureChip(
+                      icon: Icons.bed,
+                      text: '${widget.room.bedrooms} Bedrooms',
+                    ),
+                    FeatureChip(
+                      icon: Icons.bathtub,
+                      text: '${widget.room.bathrooms} Bathrooms',
+                    ),
+                    FeatureChip(
+                      icon: Icons.local_parking,
+                      text: widget.room.parking ? 'Parking' : 'No Parking',
+                    ),
+                    FeatureChip(
+                      icon: Icons.pets,
+                      text: widget.room.petFriendly
+                          ? 'Pet Friendly'
+                          : 'No Pets',
+                    ),
+                    FeatureChip(icon: Icons.wifi, text: 'WiFi Included'),
                   ],
                 ),
-                
                 // Description
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Description',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   widget.room.description,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                    height: 1.5,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
                 ),
-                
                 // Map
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Location',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Container(
                   height: 200,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    color: Colors.blue[50],
+                    color: theme.colorScheme.primary.withOpacity(0.08),
                   ),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Iconsax.map, size: 48, color: Colors.blue),
+                        Icon(
+                          Icons.map,
+                          size: 48,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           '${widget.room.distance} miles from city center',
-                          style: TextStyle(fontSize: 16, color: Colors.blue[700]),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                
                 // Comments
                 const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Comments & Questions',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('See All'),
-                    ),
+                    TextButton(onPressed: () {}, child: const Text('See All')),
                   ],
                 ),
                 const SizedBox(height: 12),
               ]),
             ),
           ),
-          
           // Comments list
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return CommentItem(
-                  comment: _comments[index],
-                  isOwner: index == 1,
-                  ownerReply: index == 1 ? "Yes, utilities are included" : null,
-                );
-              },
-              childCount: _comments.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              return CommentItem(
+                comment: _comments[index],
+                isOwner: index == 1,
+                ownerReply: index == 1 ? "Yes, utilities are included" : null,
+              );
+            }, childCount: _comments.length),
           ),
-          
           // Add comment
           SliverPadding(
             padding: const EdgeInsets.all(16),
@@ -249,7 +267,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                       decoration: InputDecoration(
                         hintText: 'Ask a question...',
                         filled: true,
-                        fillColor: Colors.grey[100],
+                        fillColor: theme.inputDecorationTheme.fillColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
@@ -263,9 +281,9 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                   ),
                   const SizedBox(width: 12),
                   CircleAvatar(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: theme.colorScheme.primary,
                     child: IconButton(
-                      icon: const Icon(Iconsax.send1, color: Colors.white),
+                      icon: const Icon(Icons.send, color: Colors.white),
                       onPressed: () {},
                     ),
                   ),
@@ -275,15 +293,14 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
           ),
         ],
       ),
-      
       // Fixed contact button
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: ElevatedButton.icon(
-          icon: const Icon(Iconsax.message),
+          icon: const Icon(Icons.message),
           label: const Text('Contact Landlord'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: theme.colorScheme.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(

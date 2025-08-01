@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rental_connect/tenant_screens/bottom_navbar.dart';
-import 'package:rental_connect/tenant_screens/home_screen.dart';
 
 
 class SplashScreen extends StatefulWidget {

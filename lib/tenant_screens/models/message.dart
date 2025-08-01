@@ -1,5 +1,4 @@
 // models/message.dart
-import 'package:flutter/material.dart';
 import 'package:rental_connect/tenant_screens/models/room.dart';
 
 enum MessageStatus { sent, delivered, read }

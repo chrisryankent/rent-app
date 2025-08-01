@@ -1,12 +1,17 @@
 // profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rental_connect/login_screen.dart';
+import 'package:rental_connect/theme_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.themeMode == ThemeMode.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -15,6 +20,19 @@ class ProfileScreen extends StatelessWidget {
         ),
         centerTitle: true,
         elevation: 0,
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: theme.appBarTheme.foregroundColor,
+        iconTheme: theme.appBarTheme.iconTheme,
+        titleTextStyle: theme.appBarTheme.titleTextStyle,
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            onPressed: () {
+              themeProvider.toggleTheme(!isDark);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -24,11 +42,11 @@ class ProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: theme.shadowColor.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -56,7 +74,8 @@ class ProfileScreen extends StatelessWidget {
                         Text(
                           'michael@example.com',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: theme.textTheme.bodySmall?.color
+                                ?.withOpacity(0.7),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -67,11 +86,11 @@ class ProfileScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            side: const BorderSide(color: Colors.blue),
+                            side: BorderSide(color: theme.colorScheme.primary),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Edit Profile',
-                            style: TextStyle(color: Colors.blue),
+                            style: TextStyle(color: theme.colorScheme.primary),
                           ),
                         ),
                       ],
@@ -80,17 +99,16 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
             // Stats
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: theme.shadowColor.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -99,23 +117,22 @@ class ProfileScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStat('12', 'Favorites', Icons.favorite),
-                  _buildStat('5', 'Viewed', Icons.remove_red_eye),
-                  _buildStat('3', 'Contacts', Icons.contacts),
-                  _buildStat('1', 'Renting', Icons.home),
+                  _buildStat('12', 'Favorites', Icons.favorite, theme),
+                  _buildStat('5', 'Viewed', Icons.remove_red_eye, theme),
+                  _buildStat('3', 'Contacts', Icons.contacts, theme),
+                  _buildStat('1', 'Renting', Icons.home, theme),
                 ],
               ),
             ),
-            
             // Settings
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: theme.shadowColor.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -123,24 +140,27 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildListTile(Icons.notifications_active, 'Notifications'),
-                  _buildListTile(Icons.security, 'Privacy & Security'),
-                  _buildListTile(Icons.settings, 'App Settings'),
-                  _buildListTile(Icons.help_center, 'Help & Support'),
-                  _buildListTile(Icons.info, 'About'),
+                  _buildListTile(
+                    Icons.notifications_active,
+                    'Notifications',
+                    theme,
+                  ),
+                  _buildListTile(Icons.security, 'Privacy & Security', theme),
+                  _buildListTile(Icons.settings, 'App Settings', theme),
+                  _buildListTile(Icons.help_center, 'Help & Support', theme),
+                  _buildListTile(Icons.info, 'About', theme),
                 ],
               ),
             ),
-            
             // Logout
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: theme.shadowColor.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -148,11 +168,16 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text('Logout', style: TextStyle(color: Colors.red)),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
                   );
                 },
               ),
@@ -163,40 +188,47 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStat(String value, String label, IconData icon) {
+  Widget _buildStat(
+    String value,
+    String label,
+    IconData icon,
+    ThemeData theme,
+  ) {
     return Column(
       children: [
-        Icon(icon, size: 24, color: Colors.blue),
+        Icon(icon, size: 24, color: theme.colorScheme.primary),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildListTile(IconData icon, String title) {
+  Widget _buildListTile(IconData icon, String title, ThemeData theme) {
     return Column(
       children: [
         ListTile(
-          leading: Icon(icon, color: Colors.blue),
+          leading: Icon(icon, color: theme.colorScheme.primary),
           title: Text(title),
-          trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+          trailing: Icon(Icons.chevron_right, color: theme.dividerColor),
           onTap: () {},
         ),
-        const Divider(height: 0, indent: 20, endIndent: 20),
+        Divider(
+          height: 0,
+          indent: 20,
+          endIndent: 20,
+          color: theme.dividerColor,
+        ),
       ],
     );
   }

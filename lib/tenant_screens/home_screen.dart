@@ -8,6 +8,7 @@ import 'compare_screen.dart';
 import 'models/room.dart';
 import 'widgets/room_card.dart';
 import 'widgets/filter_chip.dart';
+import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final List<Room> _rooms = Room.sampleData;
   final List<Room> _favorites = [];
-  final List<String> _recentSearches = ['Downtown', 'Near University', 'Pet Friendly', 'Studio'];
+  final List<String> _recentSearches = [
+    'Downtown',
+    'Near University',
+    'Pet Friendly',
+    'Studio',
+  ];
   bool _showMapView = false;
   double _priceRange = 2000;
   String _selectedCategory = 'All';
@@ -41,14 +47,31 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _addRecentSearch(String search) {
+    setState(() {
+      if (search.trim().isEmpty) return;
+      _recentSearches.remove(search);
+      _recentSearches.insert(0, search);
+      if (_recentSearches.length > 10) {
+        _recentSearches.removeLast();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'RoomFinder',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: theme.appBarTheme.foregroundColor,
+        elevation: theme.appBarTheme.elevation,
+        iconTheme: theme.appBarTheme.iconTheme,
+        titleTextStyle: theme.appBarTheme.titleTextStyle,
         actions: [
           IconButton(
             icon: const Icon(Icons.tune),
@@ -58,7 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.compare_arrows),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CompareScreen(rooms: _rooms)),
+              MaterialPageRoute(
+                builder: (context) => CompareScreen(rooms: _rooms),
+              ),
             ),
           ),
           IconButton(
@@ -83,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       hintText: 'Search for rooms, locations...',
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: theme.inputDecorationTheme.fillColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -94,7 +119,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () {},
                       ),
                     ),
-                    onTap: () => _showRecentSearches(context),
+                    onSubmitted: (value) {
+                      _addRecentSearch(value);
+                    },
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
@@ -128,11 +155,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  if (_recentSearches.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SizedBox(
+                        height: 36,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: _recentSearches
+                              .map(
+                                (search) => Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: Chip(
+                                    label: Text(search),
+                                    onDeleted: () {
+                                      setState(
+                                        () => _recentSearches.remove(search),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
-          
+
           // Categories
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -142,18 +195,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _buildCategory('All', Icons.all_inclusive, isSelected: _selectedCategory == 'All'),
-                    _buildCategory('Apartments', Icons.apartment, isSelected: _selectedCategory == 'Apartments'),
-                    _buildCategory('Shared', Icons.people, isSelected: _selectedCategory == 'Shared'),
-                    _buildCategory('Studio', Icons.home_work, isSelected: _selectedCategory == 'Studio'),
-                    _buildCategory('Luxury', Icons.star, isSelected: _selectedCategory == 'Luxury'),
-                    _buildCategory('Near Me', Icons.location_on, isSelected: _selectedCategory == 'Near Me'),
+                    _buildCategory(
+                      'All',
+                      Icons.all_inclusive,
+                      isSelected: _selectedCategory == 'All',
+                    ),
+                    _buildCategory(
+                      'Apartments',
+                      Icons.apartment,
+                      isSelected: _selectedCategory == 'Apartments',
+                    ),
+                    _buildCategory(
+                      'Shared',
+                      Icons.people,
+                      isSelected: _selectedCategory == 'Shared',
+                    ),
+                    _buildCategory(
+                      'Studio',
+                      Icons.home_work,
+                      isSelected: _selectedCategory == 'Studio',
+                    ),
+                    _buildCategory(
+                      'Luxury',
+                      Icons.star,
+                      isSelected: _selectedCategory == 'Luxury',
+                    ),
+                    _buildCategory(
+                      'Near Me',
+                      Icons.location_on,
+                      isSelected: _selectedCategory == 'Near Me',
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-          
+
           // Deals of the day
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -165,31 +242,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Text(
                         'Deals of the Day',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red[50],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           '24h left',
-                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('View All'),
-                  ),
+                  TextButton(onPressed: () {}, child: const Text('View All')),
                 ],
               ),
             ),
           ),
-          
+
           // Special deals carousel
           SliverToBoxAdapter(
             child: SizedBox(
@@ -221,13 +304,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 isFavorite: _favorites.contains(room),
                               ),
                             ),
-                          ), isNew: true, isRecommended: true,
+                          ),
+                          isNew: true,
+                          isRecommended: true,
                         ),
                         Positioned(
                           top: 10,
                           left: 10,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blue,
                               borderRadius: BorderRadius.circular(20),
@@ -249,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
+
           // Top picks for you
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -261,15 +349,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Top Picks for You',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('See More'),
-                  ),
+                  TextButton(onPressed: () {}, child: const Text('See More')),
                 ],
               ),
             ),
           ),
-          
+
           // Recommended properties
           SliverToBoxAdapter(
             child: SizedBox(
@@ -299,14 +384,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             isFavorite: _favorites.contains(room),
                           ),
                         ),
-                      ), isNew: true, 
+                      ),
+                      isNew: true,
                     ),
                   );
                 },
               ),
             ),
           ),
-          
+
           // All listings header
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -332,11 +418,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
+
           // All listings grid
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: _showMapView 
+            sliver: _showMapView
                 ? SliverToBoxAdapter(
                     child: Container(
                       height: 400,
@@ -361,7 +447,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
                             ),
                             child: const Text(
                               'Switch to List View',
@@ -373,47 +462,50 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )
                 : SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.75,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final room = _rooms[index];
-                        return RoomCard(
-                          room: room,
-                          isNew: index % 3 == 0,
-                          isFavorite: _favorites.contains(room),
-                          onFavorite: () => _toggleFavorite(room),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RoomDetailScreen(
-                                room: room,
-                                onFavorite: () => _toggleFavorite(room),
-                                isFavorite: _favorites.contains(room),
-                              ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final room = _rooms[index];
+                      return RoomCard(
+                        room: room,
+                        isNew: index % 3 == 0,
+                        isFavorite: _favorites.contains(room),
+                        onFavorite: () => _toggleFavorite(room),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RoomDetailScreen(
+                              room: room,
+                              onFavorite: () => _toggleFavorite(room),
+                              isFavorite: _favorites.contains(room),
                             ),
-                          ), isRecommended: true,
-                        );
-                      },
-                      childCount: _rooms.length,
-                    ),
+                          ),
+                        ),
+                        isRecommended: true,
+                      );
+                    }, childCount: _rooms.length),
                   ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showSaveSearchDialog(context),
-        backgroundColor: Colors.blue,
+        onPressed: () {}, // No action needed since save dialog is removed
+        backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
         child: const Icon(Icons.save, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildCategory(String title, IconData icon, {bool isSelected = false}) {
+  Widget _buildCategory(
+    String title,
+    IconData icon, {
+    bool isSelected = false,
+  }) {
     return GestureDetector(
       onTap: () => setState(() => _selectedCategory = title),
       child: Container(
@@ -429,7 +521,11 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  Icon(icon, size: 18, color: isSelected ? Colors.blue : Colors.grey),
+                  Icon(
+                    icon,
+                    size: 18,
+                    color: isSelected ? Colors.blue : Colors.grey,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     title,
@@ -444,54 +540,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showRecentSearches(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Recent Searches',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              ..._recentSearches.map((search) => ListTile(
-                leading: const Icon(Icons.history),
-                title: Text(search),
-                trailing: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    setState(() => _recentSearches.remove(search));
-                    Navigator.pop(context);
-                  },
-                ),
-                onTap: () {
-                  _searchController.text = search;
-                  Navigator.pop(context);
-                },
-              )).toList(),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => setState(() {
-                    _recentSearches.clear();
-                    Navigator.pop(context);
-                  }),
-                  child: const Text('Clear All'),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -514,7 +562,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 20),
                   Text(
                     'Max Price: \$${_priceRange.toInt()}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Slider(
@@ -552,34 +603,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           },
-        );
-      },
-    );
-  }
-
-  void _showSaveSearchDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Save This Search'),
-          content: const Text('Would you like to save your current search filters?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Save search logic
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Search saved successfully!')),
-                );
-              },
-              child: const Text('Save'),
-            ),
-          ],
         );
       },
     );
