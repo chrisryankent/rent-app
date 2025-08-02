@@ -1,5 +1,3 @@
-// Upload form steps and required fields
-
 enum PropertyType { apartment, house, sharedRoom, studio, other }
 
 class UploadFormSteps {

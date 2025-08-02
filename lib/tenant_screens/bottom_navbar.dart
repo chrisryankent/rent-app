@@ -1,5 +1,6 @@
 // main_app.dart
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'home_screen.dart';
 import 'favorites_screen.dart';
 import 'messages_screen.dart';
@@ -92,113 +93,157 @@ class _MainAppState extends State<MainApp> {
             left: 0,
             right: 0,
             bottom: _showNavBar ? 0 : -80,
-            child: Material(
-              color:
-                  theme.bottomNavigationBarTheme.backgroundColor ??
-                  theme.cardColor,
-              elevation: 8,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              child: BottomNavigationBar(
-                currentIndex: _currentIndex,
-                onTap: (index) => setState(() => _currentIndex = index),
-                type: BottomNavigationBarType.fixed,
-                backgroundColor: Colors.transparent,
-                selectedItemColor: theme.colorScheme.primary,
-                unselectedItemColor: theme.unselectedWidgetColor,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                elevation: 0,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(4), // reduced from 8
-                      decoration: BoxDecoration(
-                        color: _currentIndex == 0
-                            ? theme.colorScheme.primary.withOpacity(0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        ), // slightly less rounded
-                      ),
-                      child: Icon(
-                        _currentIndex == 0
-                            ? Icons.home_filled
-                            : Icons.home_outlined,
-                        size: 22, // slightly smaller
-                      ),
-                    ),
-                    label: 'Home',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: _currentIndex == 1
-                            ? theme.colorScheme.primary.withOpacity(0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        _currentIndex == 1
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        size: 22,
-                      ),
-                    ),
-                    label: 'Favorites',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: _currentIndex == 2
-                            ? theme.colorScheme.primary.withOpacity(0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        _currentIndex == 2
-                            ? Icons.chat_bubble
-                            : Icons.chat_bubble_outline,
-                        size: 22,
-                      ),
-                    ),
-                    label: 'Messages',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: _currentIndex == 3
-                            ? theme.colorScheme.primary.withOpacity(0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        _currentIndex == 3
-                            ? Icons.person
-                            : Icons.person_outline,
-                        size: 22,
-                      ),
-                    ),
-                    label: 'Profile',
-                  ),
-                ],
-              ),
+            child: _CustomBottomNavBar(
+              currentIndex: _currentIndex,
+              onTap: (index) => setState(() => _currentIndex = index),
+              theme: theme,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CustomBottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  final void Function(int) onTap;
+  final ThemeData theme;
+
+  const _CustomBottomNavBar({
+    required this.currentIndex,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: (theme.bottomAppBarTheme.color ?? theme.colorScheme.surface).withOpacity(0.95),
+      elevation: 8,
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(18),
+        topRight: Radius.circular(18),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 12,
+                offset: const Offset(0, -2),
+              ),
+            ],
+            border: Border(
+              top: BorderSide(
+                color: theme.dividerColor.withOpacity(0.18),
+                width: 1.2,
+              ),
+            ),
+          ),
+          child: SizedBox(
+            height: 56,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _NavBarIcon(
+                  icon: Iconsax.home,
+                  activeIcon: Iconsax.home_25,
+                  label: 'Home',
+                  selected: currentIndex == 0,
+                  onTap: () => onTap(0),
+                  theme: theme,
+                ),
+                _NavBarIcon(
+                  icon: Iconsax.heart,
+                  activeIcon: Iconsax.heart5,
+                  label: 'Favorites',
+                  selected: currentIndex == 1,
+                  onTap: () => onTap(1),
+                  theme: theme,
+                ),
+                _NavBarIcon(
+                  icon: Iconsax.message,
+                  activeIcon: Iconsax.message5,
+                  label: 'Messages',
+                  selected: currentIndex == 2,
+                  onTap: () => onTap(2),
+                  theme: theme,
+                ),
+                _NavBarIcon(
+                  icon: Iconsax.profile,
+                  activeIcon: Iconsax.profile,
+                  label: 'Profile',
+                  selected: currentIndex == 3,
+                  onTap: () => onTap(3),
+                  theme: theme,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBarIcon extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _NavBarIcon({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      splashColor: theme.colorScheme.primary.withOpacity(0.12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                selected ? activeIcon : icon,
+                key: ValueKey(selected),
+                size: 18,
+                color: selected ? theme.colorScheme.primary : Colors.grey.shade500,
+              ),
+            ),
+            const SizedBox(height: 1),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                color: selected ? theme.colorScheme.primary : Colors.grey.shade500,
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
       ),
     );
   }

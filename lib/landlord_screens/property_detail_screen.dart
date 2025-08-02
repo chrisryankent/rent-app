@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'models/property.dart';
 
 class PropertyDetailScreen extends StatelessWidget {
@@ -15,333 +16,252 @@ class PropertyDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final primaryColor = theme.colorScheme.primary;
+    final backgroundColor = isDark ? Colors.grey[900]! : Colors.grey[50]!;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: Text(
           property.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
-          IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
+          IconButton(
+            icon: Icon(Iconsax.edit, color: theme.colorScheme.onSurface),
+            onPressed: onEdit,
+          ),
+          IconButton(
+            icon: Icon(Iconsax.trash, color: Colors.red[400]),
+            onPressed: onDelete,
+          ),
         ],
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        foregroundColor: theme.appBarTheme.foregroundColor,
-        elevation: theme.appBarTheme.elevation,
-        iconTheme: theme.appBarTheme.iconTheme,
-        titleTextStyle: theme.appBarTheme.titleTextStyle,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withOpacity(0.6),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
       ),
+      extendBodyBehindAppBar: true,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
-            expandedHeight: 260,
+            expandedHeight: 320,
             pinned: true,
             automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
-              background: property.photos.isNotEmpty
-                  ? PageView.builder(
-                      itemCount: property.photos.length,
-                      itemBuilder: (context, index) => ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24),
-                        ),
-                        child: Image.asset(
-                          property.photos[index],
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    )
-                  : Container(color: Colors.grey[200]),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Title, price, address
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        property.title,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+              collapseMode: CollapseMode.pin,
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PageView.builder(
+                    itemCount: property.photos?.isNotEmpty == true ? property.photos!.length : 1,
+                    itemBuilder: (context, index) => Image.asset(
+                      property.photos?.isNotEmpty == true
+                          ? property.photos![index]
+                          : 'assets/placeholder.jpg',
+                      width: double.infinity,
+                      fit: BoxFit.cover,
                     ),
-                    Text(
-                      '\u0024${property.rentAmount.toStringAsFixed(0)}/mo',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.location_on, size: 18, color: theme.hintColor),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        property.address,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.hintColor,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                // Features card
-                const SizedBox(height: 20),
-                Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          _featureIcon(theme, Icons.king_bed, '${property.bedrooms} Beds'),
-                          const SizedBox(width: 16),
-                          _featureIcon(theme, Icons.bathtub, '${property.bathrooms} Baths'),
-                          const SizedBox(width: 16),
-                          _featureIcon(theme, Icons.square_foot, '${property.squareFootage} sqft'),
-                          const SizedBox(width: 16),
-                          _featureIcon(theme, Icons.apartment, property.propertyTypes.map((e) => e.name).join(', ')),
-                          const SizedBox(width: 16),
-                          _featureIcon(theme, Icons.chair, property.furnishingStatus.name),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
+                          Colors.transparent,
+                          backgroundColor.withOpacity(0.8),
                         ],
                       ),
                     ),
                   ),
-                ),
-                // Description
-                const SizedBox(height: 24),
-                Text(
-                  'Description',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  property.neighborhoodDesc,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-                ),
-                // Amenities
-                const SizedBox(height: 24),
-                Text(
-                  'Amenities',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _chip('Heating: ${property.heatingType.name}'),
-                    _chip('Cooling: ${property.coolingType.name}'),
-                    _chip('Parking: ${property.parking}'),
-                    _chip('Laundry: ${property.laundryFacilities}'),
-                    _chip('Pets: ${property.petPolicy}'),
-                    if (property.utilitiesIncluded.isNotEmpty)
-                      _chip('Utilities: ${property.utilitiesIncluded.join(", ")}'),
-                    if (property.accessibilityFeatures.isNotEmpty)
-                      _chip('Accessibility: ${property.accessibilityFeatures.join(", ")}'),
-                  ],
-                ),
-                // Lease & Terms
-                const SizedBox(height: 24),
-                Text(
-                  'Lease & Terms',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _chip('Deposit: \u0024${property.securityDeposit.toStringAsFixed(0)}'),
-                    _chip('Lease: ${property.leaseType.name}'),
-                    _chip('Min. Months: ${property.minLeaseMonths}'),
-                    _chip('Application: ${property.applicationRequirements.join(", ")}'),
-                    _chip('Smoking: ${property.smokingPolicy}'),
-                    _chip('Guests: ${property.guestPolicy}'),
-                  ],
-                ),
-                // Community
-                const SizedBox(height: 24),
-                Text(
-                  'Community',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    if (property.communityFeatures.isNotEmpty)
-                      _chip('Features: ${property.communityFeatures.join(", ")}'),
-                    if (property.parks.isNotEmpty)
-                      _chip('Parks: ${property.parks.join(", ")}'),
-                    if (property.restaurants.isNotEmpty)
-                      _chip('Restaurants: ${property.restaurants.join(", ")}'),
-                    if (property.groceries.isNotEmpty)
-                      _chip('Groceries: ${property.groceries.join(", ")}'),
-                  ],
-                ),
-                // Special Features
-                if (property.specialFeatures.isNotEmpty || (property.usp != null && property.usp!.isNotEmpty)) ...[
-                  const SizedBox(height: 24),
-                  Text(
-                    'Special Features',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  Positioned(
+                    top: 80,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: property.status.color.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        property.status.displayName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      if (property.specialFeatures.isNotEmpty)
-                        _chip(property.specialFeatures.join(", ")),
-                      if (property.usp != null && property.usp!.isNotEmpty)
-                        _chip(property.usp!),
-                    ],
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        property.photos?.isNotEmpty == true
+                            ? '1/${property.photos!.length}'
+                            : 'No images',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
-                // Details (optional, compact)
-                const SizedBox(height: 24),
-                ExpansionTile(
-                  title: const Text('More Details'),
+              ),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Container(
+                color: backgroundColor,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Column(
-                        children: [
-                          _detailRow('Available', property.availableDate.toLocal().toString().split(' ')[0],
-                            onEdit: () => _showEditDialog(context, 'Available', property.availableDate.toLocal().toString().split(' ')[0], (v) {}),
-                            isEmpty: false),
-                          _detailRow('Floor Level', property.floorLevel.toString(),
-                            onEdit: () => _showEditDialog(context, 'Floor Level', property.floorLevel.toString(), (v) {}),
-                            isEmpty: false),
-                          _detailRow('Total Floors', property.totalFloors.toString(),
-                            onEdit: () => _showEditDialog(context, 'Total Floors', property.totalFloors.toString(), (v) {}),
-                            isEmpty: false),
-                          _detailRow('Noise Restrictions', property.noiseRestrictions,
-                            onEdit: () => _showEditDialog(context, 'Noise Restrictions', property.noiseRestrictions, (v) {}),
-                            isEmpty: property.noiseRestrictions.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Noise Restrictions', '', (v) {})),
-                          _detailRow('Maintenance', property.maintenanceResponsibilities,
-                            onEdit: () => _showEditDialog(context, 'Maintenance', property.maintenanceResponsibilities, (v) {}),
-                            isEmpty: property.maintenanceResponsibilities.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Maintenance', '', (v) {})),
-                          _detailRow('Subletting', property.sublettingPolicy,
-                            onEdit: () => _showEditDialog(context, 'Subletting', property.sublettingPolicy, (v) {}),
-                            isEmpty: property.sublettingPolicy.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Subletting', '', (v) {})),
-                          _detailRow('Contact', property.contactName,
-                            onEdit: () => _showEditDialog(context, 'Contact', property.contactName, (v) {}),
-                            isEmpty: property.contactName.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Contact', '', (v) {})),
-                          _detailRow('Contact Role', property.contactRole,
-                            onEdit: () => _showEditDialog(context, 'Contact Role', property.contactRole, (v) {}),
-                            isEmpty: property.contactRole.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Contact Role', '', (v) {})),
-                          _detailRow('Showing', property.showingSchedule,
-                            onEdit: () => _showEditDialog(context, 'Showing', property.showingSchedule, (v) {}),
-                            isEmpty: property.showingSchedule.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Showing', '', (v) {})),
-                          _detailRow('Certifications', property.safetyCertifications.join(', '),
-                            onEdit: () => _showEditDialog(context, 'Certifications', property.safetyCertifications.join(', '), (v) {}),
-                            isEmpty: property.safetyCertifications.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Certifications', '', (v) {})),
-                          _detailRow('Permits', property.buildingPermits.join(', '),
-                            onEdit: () => _showEditDialog(context, 'Permits', property.buildingPermits.join(', '), (v) {}),
-                            isEmpty: property.buildingPermits.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Permits', '', (v) {})),
-                          _detailRow('Rental License #', property.rentalLicenseNumber ?? '-',
-                            onEdit: () => _showEditDialog(context, 'Rental License #', property.rentalLicenseNumber ?? '', (v) {}),
-                            isEmpty: property.rentalLicenseNumber == null || property.rentalLicenseNumber!.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Rental License #', '', (v) {})),
-                          _detailRow('Energy Rating', property.energyRating ?? '-',
-                            onEdit: () => _showEditDialog(context, 'Energy Rating', property.energyRating ?? '', (v) {}),
-                            isEmpty: property.energyRating == null || property.energyRating!.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Energy Rating', '', (v) {})),
-                          _detailRow('Landmarks', property.nearbyLandmarks.join(', '),
-                            onEdit: () => _showEditDialog(context, 'Landmarks', property.nearbyLandmarks.join(', '), (v) {}),
-                            isEmpty: property.nearbyLandmarks.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Landmarks', '', (v) {})),
-                          _detailRow('Transport', property.transportationAccess.join(', '),
-                            onEdit: () => _showEditDialog(context, 'Transport', property.transportationAccess.join(', '), (v) {}),
-                            isEmpty: property.transportationAccess.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Transport', '', (v) {})),
-                          _detailRow('Distances', property.distancesToKeyLocations.entries.map((e) => "${e.key}: ${e.value}km").join(', '),
-                            onEdit: () => _showEditDialog(context, 'Distances', property.distancesToKeyLocations.entries.map((e) => "${e.key}: ${e.value}km").join(', '), (v) {}),
-                            isEmpty: property.distancesToKeyLocations.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Distances', '', (v) {})),
-                          _detailRow('Virtual Tour', property.virtualTourUrl ?? '-',
-                            onEdit: () => _showEditDialog(context, 'Virtual Tour', property.virtualTourUrl ?? '', (v) {}),
-                            isEmpty: property.virtualTourUrl == null || property.virtualTourUrl!.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Virtual Tour', '', (v) {})),
-                          _detailRow('Floor Plan', property.floorPlanImage ?? '-',
-                            onEdit: () => _showEditDialog(context, 'Floor Plan', property.floorPlanImage ?? '', (v) {}),
-                            isEmpty: property.floorPlanImage == null || property.floorPlanImage!.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Floor Plan', '', (v) {})),
-                          _detailRow('Video Walkthrough', property.videoWalkthrough ?? '-',
-                            onEdit: () => _showEditDialog(context, 'Video Walkthrough', property.videoWalkthrough ?? '', (v) {}),
-                            isEmpty: property.videoWalkthrough == null || property.videoWalkthrough!.isEmpty,
-                            onAdd: () => _showEditDialog(context, 'Video Walkthrough', '', (v) {})),
-                        ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            property.title,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '\u0024${property.rentAmount.toStringAsFixed(0)}/mo',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Iconsax.location, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            property.address,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface.withOpacity(0.8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _buildQuickStats(theme),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(theme, Iconsax.document_text, 'Description'),
+                    const SizedBox(height: 16),
+                    Text(
+                      property.neighborhoodDesc ?? '',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        height: 1.6,
+                        color: theme.colorScheme.onSurface.withOpacity(0.8),
                       ),
                     ),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(theme, Iconsax.star, 'Key Features'),
+                    const SizedBox(height: 16),
+                    _buildFeaturesGrid(theme),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(theme, Iconsax.home_wifi, 'Amenities'),
+                    const SizedBox(height: 16),
+                    _buildAmenitiesList(theme),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(theme, Iconsax.document, 'Lease & Terms'),
+                    const SizedBox(height: 16),
+                    _buildLeaseTerms(theme),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(theme, Iconsax.buildings, 'Community'),
+                    const SizedBox(height: 16),
+                    _buildCommunityFeatures(theme),
+                    if (property.specialFeatures != null && property.specialFeatures!.isNotEmpty || 
+                        (property.usp != null && property.usp!.isNotEmpty)) ...[
+                      const SizedBox(height: 32),
+                      _buildSectionHeader(theme, Iconsax.flash, 'Special Features'),
+                      const SizedBox(height: 16),
+                      _buildSpecialFeatures(theme),
+                    ],
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(theme, Iconsax.info_circle, 'Detailed Information'),
+                    const SizedBox(height: 16),
+                    _buildDetailedInfo(theme),
+                    const SizedBox(height: 40),
                   ],
                 ),
-              ]),
-            ),
+              ),
+            ]),
           ),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          border: Border(top: BorderSide(color: theme.dividerColor.withOpacity(0.1))),
+        ),
         child: Row(
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.edit),
+                icon: const Icon(Iconsax.edit),
                 label: const Text('Edit Property'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
+                  backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  elevation: 0,
                 ),
                 onPressed: onEdit,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.delete),
+                icon: const Icon(Iconsax.trash),
                 label: const Text('Delete'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.red.withOpacity(0.1),
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  elevation: 0,
                 ),
                 onPressed: onDelete,
               ),
@@ -352,82 +272,378 @@ class PropertyDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _featureIcon(ThemeData theme, IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: theme.colorScheme.primary, size: 22),
+  Widget _buildQuickStats(ThemeData theme) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.dividerColor.withOpacity(0.1)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _statItem(theme, Iconsax.ruler, '${property.squareFootage?.toStringAsFixed(0)} sqft'),
+            _statItem(theme, Iconsax.battery_charging, '${property.bedrooms} Beds'),
+            _statItem(theme, Iconsax.back_square, '${property.bathrooms} Baths'),
+            _statItem(theme, Iconsax.buildings, property.propertyTypes.map((e) => e.name).join(', ')),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 11)),
-      ],
-    );
-  }
-
-  Widget _chip(String label) {
-    return Chip(
-      label: Text(label, style: const TextStyle(fontSize: 12)),
-      backgroundColor: Colors.blue[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
-  }
-
-  Widget _detailRow(String label, String value, {VoidCallback? onEdit, bool isEmpty = false, VoidCallback? onAdd}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-          Expanded(
-            child: Text(value, style: const TextStyle(color: Colors.black87)),
-          ),
-          isEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.add_circle_outline, size: 18, color: Colors.blue),
-                  tooltip: 'Add',
-                  onPressed: onAdd,
-                )
-              : IconButton(
-                  icon: const Icon(Icons.edit, size: 18, color: Colors.orange),
-                  tooltip: 'Update',
-                  onPressed: onEdit,
-                ),
-        ],
       ),
     );
   }
 
-  void _showEditDialog(BuildContext context, String field, String currentValue, void Function(String) onSave) {
-    final controller = TextEditingController(text: currentValue);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit $field'),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(labelText: field),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              onSave(controller.text);
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
+  Widget _statItem(ThemeData theme, IconData icon, String label) {
+    return Column(
+      children: [
+        Icon(icon, size: 22, color: theme.colorScheme.primary),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w500,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(ThemeData theme, IconData icon, String title) {
+    return Row(
+      children: [
+        Icon(icon, size: 24, color: theme.colorScheme.primary),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeaturesGrid(ThemeData theme) {
+    final features = [
+      _FeatureItem('Furnishing', property.furnishingStatus?.name ?? 'Not specified'),
+      _FeatureItem('Heating', property.heatingType?.name ?? 'Not specified'),
+      _FeatureItem('Cooling', property.coolingType?.name ?? 'Not specified'),
+      _FeatureItem('Parking', property.parking ?? 'Not specified'),
+      _FeatureItem('Laundry', property.laundryFacilities ?? 'Not specified'),
+      _FeatureItem('Pets', property.petPolicy ?? 'Not specified'),
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 4,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: features.length,
+      itemBuilder: (context, index) {
+        final item = features[index];
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+              ),
+              Text(
+                item.value,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAmenitiesList(ThemeData theme) {
+    final amenities = [
+      if (property.kitchenAppliances != null) 
+        ...property.kitchenAppliances!.map((e) => _AmenityItem(e, Icons.kitchen)),
+      if (property.accessibilityFeatures != null)
+        ...property.accessibilityFeatures!.map((e) => _AmenityItem(e, Icons.accessibility)),
+      if (property.utilitiesIncluded != null)
+        ...property.utilitiesIncluded!.map((e) => _AmenityItem(e, Icons.electrical_services)),
+    ];
+
+    return amenities.isEmpty
+        ? Text(
+            'No amenities listed',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.5),
+            ),
+          )
+        : Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: amenities
+                .map((item) => Chip(
+                      label: Text(item.label),
+                      avatar: Icon(item.icon, size: 16),
+                      backgroundColor: theme.cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ))
+                .toList(),
+          );
+  }
+
+  Widget _buildLeaseTerms(ThemeData theme) {
+    final terms = [
+      _TermItem('Lease Type', property.leaseType?.name ?? 'Not specified'),
+      _TermItem('Security Deposit', property.securityDeposit != null ? '\u0024${property.securityDeposit.toStringAsFixed(0)}' : 'Not specified'),
+      _TermItem('Minimum Lease', property.minLeaseMonths != null ? '${property.minLeaseMonths} months' : 'Not specified'),
+      _TermItem('Application Requirements', property.applicationRequirements?.join(', ') ?? 'Not specified'),
+      _TermItem('Smoking Policy', property.smokingPolicy ?? 'Not specified'),
+      _TermItem('Guest Policy', property.guestPolicy ?? 'Not specified'),
+    ];
+
+    return Column(
+      children: terms
+          .map((item) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        item.label,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        item.value,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ))
+          .toList(),
+    );
+  }
+
+  Widget _buildCommunityFeatures(ThemeData theme) {
+    final features = [
+      if (property.communityFeatures != null && property.communityFeatures!.isNotEmpty)
+        _CommunityItem('Community Features', property.communityFeatures!.join(', ')),
+      if (property.parks != null && property.parks!.isNotEmpty) _CommunityItem('Parks', property.parks!.join(', ')),
+      if (property.restaurants != null && property.restaurants!.isNotEmpty) _CommunityItem('Restaurants', property.restaurants!.join(', ')),
+      if (property.groceries != null && property.groceries!.isNotEmpty) _CommunityItem('Groceries', property.groceries!.join(', ')),
+    ];
+
+    return features.isEmpty
+        ? Text(
+            'No community features listed',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.5),
+            ),
+          )
+        : Column(
+            children: features
+                .map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.label,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.value,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ))
+                .toList(),
+          );
+  }
+
+  Widget _buildSpecialFeatures(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (property.specialFeatures != null && property.specialFeatures!.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: property.specialFeatures!
+                .map((feature) => Chip(
+                      label: Text(feature),
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                    ))
+                .toList(),
+          ),
+        if (property.usp != null && property.usp!.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text(
+            'Unique Selling Point:',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            property.usp!,
+            style: theme.textTheme.bodyLarge,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDetailedInfo(ThemeData theme) {
+    final details = [
+      _DetailCategory(
+        title: 'Contact Information',
+        items: [
+          _DetailItem('Contact Name', property.contactName ?? 'Not specified'),
+          _DetailItem('Contact Role', property.contactRole ?? 'Not specified'),
+          _DetailItem('Contact Method', property.contactMethod ?? 'Not specified'),
+          _DetailItem('Showing Schedule', property.showingSchedule ?? 'Not specified'),
+        ],
+      ),
+      _DetailCategory(
+        title: 'Building Information',
+        items: [
+          _DetailItem('Floor Level', property.floorLevel?.toString() ?? 'Not specified'),
+          _DetailItem('Total Floors', property.totalFloors?.toString() ?? 'Not specified'),
+          _DetailItem('Available Date', property.availableDate.toLocal().toString().split(' ')[0]),
+        ],
+      ),
+      _DetailCategory(
+        title: 'Certifications',
+        items: [
+          _DetailItem('Safety Certifications', property.safetyCertifications?.join(', ') ?? 'Not specified'),
+          _DetailItem('Building Permits', property.buildingPermits?.join(', ') ?? 'Not specified'),
+          _DetailItem('Rental License #', property.rentalLicenseNumber ?? 'Not specified'),
+          _DetailItem('Energy Rating', property.energyRating ?? 'Not specified'),
+        ],
+      ),
+    ];
+
+    return Column(
+      children: details
+          .map((category) => _DetailCategoryCard(
+                theme: theme,
+                category: category,
+              ))
+          .toList(),
+    );
+  }
+}
+
+class _FeatureItem {
+  final String label;
+  final String value;
+
+  _FeatureItem(this.label, this.value);
+}
+
+class _AmenityItem {
+  final String label;
+  final IconData icon;
+
+  _AmenityItem(this.label, this.icon);
+}
+
+class _TermItem {
+  final String label;
+  final String value;
+
+  _TermItem(this.label, this.value);
+}
+
+class _CommunityItem {
+  final String label;
+  final String value;
+
+  _CommunityItem(this.label, this.value);
+}
+
+class _DetailCategory {
+  final String title;
+  final List<_DetailItem> items;
+
+  _DetailCategory({required this.title, required this.items});
+}
+
+class _DetailItem {
+  final String label;
+  final String value;
+
+  _DetailItem(this.label, this.value);
+}
+
+class _DetailCategoryCard extends StatelessWidget {
+  final ThemeData theme;
+  final _DetailCategory category;
+
+  const _DetailCategoryCard({
+    required this.theme,
+    required this.category,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.dividerColor.withOpacity(0.1)),
+      ),
+      child: ExpansionTile(
+        title: Text(
+          category.title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        children: [
+          ...category.items.map((item) => ListTile(
+                title: Text(
+                  item.label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+                subtitle: Text(
+                  item.value,
+                  style: theme.textTheme.bodyMedium,
+                ),
+              )),
         ],
       ),
     );

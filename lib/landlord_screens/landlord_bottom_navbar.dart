@@ -107,7 +107,7 @@ class _NavBarIcon extends StatelessWidget {
       onTap: onTap,
       splashColor: theme.colorScheme.primary.withOpacity(0.12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0), // Reduced vertical padding
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -117,15 +117,15 @@ class _NavBarIcon extends StatelessWidget {
               child: Icon(
                 icon,
                 key: ValueKey(selected),
-                size: 18, // Smaller icon
+                size: 18,
                 color: selected ? theme.colorScheme.primary : Colors.grey.shade500,
               ),
             ),
-            const SizedBox(height: 1), // Less spacing
+            const SizedBox(height: 1),
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
-                fontSize: 9, // Smaller text
+                fontSize: 9,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal,
                 color: selected ? theme.colorScheme.primary : Colors.grey.shade500,
               ),

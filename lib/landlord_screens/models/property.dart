@@ -1,4 +1,4 @@
-// Property model for landlord upload
+import 'package:flutter/material.dart';
 
 enum PropertyType {
   apartment,
@@ -22,142 +22,206 @@ enum HeatingType { central, electric, gas, none }
 
 enum CoolingType { ac, ceilingFans, none }
 
+enum PropertyStatus { active, pending, rented, maintenance }
+
+extension PropertyStatusExtension on PropertyStatus {
+  String get displayName {
+    switch (this) {
+      case PropertyStatus.active:
+        return 'Active';
+      case PropertyStatus.pending:
+        return 'Pending';
+      case PropertyStatus.rented:
+        return 'Rented';
+      case PropertyStatus.maintenance:
+        return 'Maintenance';
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case PropertyStatus.active:
+        return Colors.green;
+      case PropertyStatus.pending:
+        return Colors.orange;
+      case PropertyStatus.rented:
+        return Colors.blue;
+      case PropertyStatus.maintenance:
+        return Colors.red;
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case PropertyStatus.active:
+        return Icons.check_circle;
+      case PropertyStatus.pending:
+        return Icons.pending;
+      case PropertyStatus.rented:
+        return Icons.assignment_turned_in;
+      case PropertyStatus.maintenance:
+        return Icons.handyman;
+    }
+  }
+}
+
 class Property {
-  // 1. Basics
+  final String id;
+  final String landlordId;
+  final DateTime createdAt;
+  final PropertyStatus status;
   final String title;
   final List<PropertyType> propertyTypes;
   final double rentAmount;
   final double securityDeposit;
   final DateTime availableDate;
-
-  // 2. Details
-  final int bedrooms;
-  final int bathrooms;
-  final double squareFootage;
-  final FurnishingStatus furnishingStatus;
-  final int floorLevel;
-  final int totalFloors;
-
-  // 3. Amenities
-  final HeatingType heatingType;
-  final CoolingType coolingType;
-  final List<String> kitchenAppliances;
-  final String laundryFacilities;
-  final String parking;
-  final String petPolicy;
-  final List<String> accessibilityFeatures;
-
-  // 4. Location
+  final int? bedrooms;
+  final int? bathrooms;
+  final double? squareFootage;
+  final FurnishingStatus? furnishingStatus;
+  final int? floorLevel;
+  final int? totalFloors;
+  final HeatingType? heatingType;
+  final CoolingType? coolingType;
+  final List<String>? kitchenAppliances;
+  final String? laundryFacilities;
+  final String? parking;
+  final String? petPolicy;
+  final List<String>? accessibilityFeatures;
   final String address;
-  final String neighborhoodDesc;
-  final List<String> nearbyLandmarks;
-  final List<String> transportationAccess;
-  final Map<String, double> distancesToKeyLocations;
-
-  // 5. Visuals
-  final List<String> photos;
+  final String? neighborhoodDesc;
+  final List<String>? nearbyLandmarks;
+  final List<String>? transportationAccess;
+  final Map<String, double>? distancesToKeyLocations;
+  final List<String>? photos;
   final String? virtualTourUrl;
   final String? floorPlanImage;
   final String? videoWalkthrough;
-
-  // 6. Utilities
-  final List<String> utilitiesIncluded;
+  final List<String>? utilitiesIncluded;
   final double? avgUtilityCost;
-  final List<String> additionalFees;
-
-  // 7. Lease Terms
-  final int minLeaseMonths;
-  final LeaseType leaseType;
-  final List<String> applicationRequirements;
-  final String smokingPolicy;
-
-  // 8. Rules
-  final String guestPolicy;
-  final String noiseRestrictions;
-  final String maintenanceResponsibilities;
-  final String sublettingPolicy;
-
-  // 9. Contact
-  final String contactMethod;
-  final String showingSchedule;
-  final String contactName;
-  final String contactRole;
-
-  // 10. Certifications
-  final List<String> safetyCertifications;
-  final List<String> buildingPermits;
+  final List<String>? additionalFees;
+  final int? minLeaseMonths;
+  final LeaseType? leaseType;
+  final List<String>? applicationRequirements;
+  final String? smokingPolicy;
+  final String? guestPolicy;
+  final String? noiseRestrictions;
+  final String? maintenanceResponsibilities;
+  final String? sublettingPolicy;
+  final String? contactMethod;
+  final String? showingSchedule;
+  final String? contactName;
+  final String? contactRole;
+  final List<String>? safetyCertifications;
+  final List<String>? buildingPermits;
   final String? rentalLicenseNumber;
   final String? energyRating;
-
-  // 11. Neighborhood
-  final List<String> parks;
-  final List<String> restaurants;
-  final List<String> groceries;
-  final List<String> communityFeatures;
-
-  // 12. Unique Selling Points
-  final List<String> renovations;
-  final List<String> specialFeatures;
+  final List<String>? parks;
+  final List<String>? restaurants;
+  final List<String>? groceries;
+  final List<String>? communityFeatures;
+  final List<String>? renovations;
+  final List<String>? specialFeatures;
   final String? usp;
+  final String description;
+
+  List<String> get amenities {
+    final amenities = <String>[];
+    if ((parking ?? '').isNotEmpty) amenities.add('Parking');
+    if ((petPolicy ?? '').toLowerCase().contains('allowed')) {
+      amenities.add('Pet Friendly');
+    }
+    if ((laundryFacilities ?? '').toLowerCase().contains('in-unit')) {
+      amenities.add('Laundry');
+    }
+    if (coolingType == CoolingType.ac) amenities.add('Air Conditioning');
+    if (heatingType != null && heatingType != HeatingType.none) {
+      amenities.add('Heating');
+    }
+    return amenities;
+  }
 
   Property({
+    required this.id,
+    required this.landlordId,
+    required this.createdAt,
+    required this.status,
     required this.title,
     required this.propertyTypes,
     required this.rentAmount,
     required this.securityDeposit,
     required this.availableDate,
-    required this.bedrooms,
-    required this.bathrooms,
-    required this.squareFootage,
-    required this.furnishingStatus,
-    required this.floorLevel,
-    required this.totalFloors,
-    required this.heatingType,
-    required this.coolingType,
-    required this.kitchenAppliances,
-    required this.laundryFacilities,
-    required this.parking,
-    required this.petPolicy,
-    required this.accessibilityFeatures,
+    this.bedrooms,
+    this.bathrooms,
+    this.squareFootage,
+    this.furnishingStatus,
+    this.floorLevel,
+    this.totalFloors,
+    this.heatingType,
+    this.coolingType,
+    this.kitchenAppliances,
+    this.laundryFacilities,
+    this.parking,
+    this.petPolicy,
+    this.accessibilityFeatures,
     required this.address,
-    required this.neighborhoodDesc,
-    required this.nearbyLandmarks,
-    required this.transportationAccess,
-    required this.distancesToKeyLocations,
-    required this.photos,
+    this.neighborhoodDesc,
+    this.nearbyLandmarks,
+    this.transportationAccess,
+    this.distancesToKeyLocations,
+    this.photos,
     this.virtualTourUrl,
     this.floorPlanImage,
     this.videoWalkthrough,
-    required this.utilitiesIncluded,
+    this.utilitiesIncluded,
     this.avgUtilityCost,
-    required this.additionalFees,
-    required this.minLeaseMonths,
-    required this.leaseType,
-    required this.applicationRequirements,
-    required this.smokingPolicy,
-    required this.guestPolicy,
-    required this.noiseRestrictions,
-    required this.maintenanceResponsibilities,
-    required this.sublettingPolicy,
-    required this.contactMethod,
-    required this.showingSchedule,
-    required this.contactName,
-    required this.contactRole,
-    required this.safetyCertifications,
-    required this.buildingPermits,
+    this.additionalFees,
+    this.minLeaseMonths,
+    this.leaseType,
+    this.applicationRequirements,
+    this.smokingPolicy,
+    this.guestPolicy,
+    this.noiseRestrictions,
+    this.maintenanceResponsibilities,
+    this.sublettingPolicy,
+    this.contactMethod,
+    this.showingSchedule,
+    this.contactName,
+    this.contactRole,
+    this.safetyCertifications,
+    this.buildingPermits,
     this.rentalLicenseNumber,
     this.energyRating,
-    required this.parks,
-    required this.restaurants,
-    required this.groceries,
-    required this.communityFeatures,
-    required this.renovations,
-    required this.specialFeatures,
+    this.parks,
+    this.restaurants,
+    this.groceries,
+    this.communityFeatures,
+    this.renovations,
+    this.specialFeatures,
     this.usp,
+    required this.description, required List<String> amenities,
   });
+
+  factory Property.empty() => Property(
+    id: '',
+    landlordId: '',
+    createdAt: DateTime.now(),
+    status: PropertyStatus.pending,
+    title: '',
+    propertyTypes: [],
+    rentAmount: 0,
+    securityDeposit: 0,
+    availableDate: DateTime.now(),
+    address: '',
+    description: '', amenities: [],
+  );
 
   static List<Property> get sampleData => [
     Property(
+      id: '1',
+      landlordId: 'landlord123',
+      createdAt: DateTime.now().subtract(const Duration(days: 10)),
+      status: PropertyStatus.active,
       title: 'Modern Downtown Studio',
       propertyTypes: [PropertyType.apartment, PropertyType.luxuryApartment],
       rentAmount: 1250,
@@ -182,9 +246,6 @@ class Property {
       transportationAccess: ['Subway', 'Bus'],
       distancesToKeyLocations: {'Central Park': 0.5, 'City Mall': 0.3},
       photos: ['lib/assets/property1.jpg'],
-      virtualTourUrl: null,
-      floorPlanImage: null,
-      videoWalkthrough: null,
       utilitiesIncluded: ['Water', 'Trash'],
       avgUtilityCost: 120,
       additionalFees: ['Application fee'],
@@ -211,8 +272,13 @@ class Property {
       renovations: ['New kitchen'],
       specialFeatures: ['City view', 'Balcony'],
       usp: 'Best downtown value!',
+      description: 'Beautiful modern studio in the heart of downtown with stunning city views and premium amenities.', amenities: [],
     ),
     Property(
+      id: '2',
+      landlordId: 'landlord123',
+      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      status: PropertyStatus.pending,
       title: 'Spacious Family Home',
       propertyTypes: [PropertyType.house],
       rentAmount: 2200,
@@ -237,9 +303,6 @@ class Property {
       transportationAccess: ['Bus'],
       distancesToKeyLocations: {'Oak Park': 0.2},
       photos: ['lib/assets/property2.jpg'],
-      virtualTourUrl: null,
-      floorPlanImage: null,
-      videoWalkthrough: null,
       utilitiesIncluded: ['Water'],
       avgUtilityCost: 180,
       additionalFees: [],
@@ -266,6 +329,7 @@ class Property {
       renovations: ['New roof'],
       specialFeatures: ['Large backyard'],
       usp: 'Perfect for families!',
+      description: 'Spacious family home in a quiet suburban neighborhood with large backyard and playground nearby.', amenities: [],
     ),
   ];
 }

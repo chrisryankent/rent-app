@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rental_connect/register_screen.dart';
 import 'package:rental_connect/tenant_screens/bottom_navbar.dart';
-import 'package:rental_connect/tenant_screens/home_screen.dart';
 import 'landlord_screens/landlord_main.dart';
 
 class LoginScreen extends StatefulWidget {

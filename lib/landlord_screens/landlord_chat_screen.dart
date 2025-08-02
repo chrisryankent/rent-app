@@ -182,7 +182,6 @@ class _LandlordChatScreenState extends State<LandlordChatScreen> {
                 ],
               ),
             ),
-          // Chat messages
           Expanded(
             child: AnimatedList(
               key: _listKey,
@@ -356,7 +355,6 @@ class _LandlordChatScreenState extends State<LandlordChatScreen> {
       ),
       child: Column(
         children: [
-          // Quick replies
           SizedBox(
             height: 40,
             child: ListView(
@@ -509,7 +507,6 @@ class _LandlordChatScreenState extends State<LandlordChatScreen> {
                 title: const Text('View Property Details'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Navigate to property details
                 },
               ),
               ListTile(
@@ -517,7 +514,6 @@ class _LandlordChatScreenState extends State<LandlordChatScreen> {
                 title: const Text('Schedule Viewing'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Schedule viewing logic
                 },
               ),
               ListTile(
@@ -567,7 +563,6 @@ class _LandlordChatScreenState extends State<LandlordChatScreen> {
       _messages.insert(0, message);
       _messageController.clear();
     });
-    // Simulate reply
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         _messages.insert(
@@ -587,7 +582,6 @@ class _LandlordChatScreenState extends State<LandlordChatScreen> {
   void _launchDialer(String phoneNumber) async {
     final uri = Uri(scheme: 'tel', path: phoneNumber);
     if (await launcher.launchUrl(uri)) {
-      // success
     } else {
       ScaffoldMessenger.of(
         context,
