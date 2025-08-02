@@ -1,8 +1,8 @@
 // chat_screen.dart
 import 'package:flutter/material.dart';
-import 'package:rental_connect/tenant_screens/models/user.dart';
+import 'package:rental_connect/models/user.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
-import 'models/message.dart';
+import '../models/message.dart';
 
 class ChatScreen extends StatefulWidget {
   final User landlord;
@@ -20,6 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   Message? _recentlyDeleted;
   int? _recentlyDeletedIndex;
+  final String _currentUserId = 'user1';
 
   @override
   void initState() {
@@ -28,70 +29,46 @@ class _ChatScreenState extends State<ChatScreen> {
     _messages.addAll([
       Message(
         id: '1',
-        sender: User(
-          id: 'user1',
-          name: 'You',
-          email: 'you@example.com',
-          phone: '0000000000',
-          type: UserType.tenant,
-        ),
+        senderId: _currentUserId,
         content: 'Hi, is the apartment still available?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        isSent: true,
         status: MessageStatus.read,
         isSystem: false,
       ),
       Message(
         id: '2',
-        sender: widget.landlord,
+        senderId: widget.landlord.id,
         content: 'Yes, it is! When would you like to view it?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 28)),
-        isSent: false,
         isSystem: false,
       ),
       Message(
         id: '3',
-        sender: User(
-          id: 'user1',
-          name: 'You',
-          email: 'you@example.com',
-          phone: '0000000000',
-          type: UserType.tenant,
-        ),
+        senderId: _currentUserId,
         content: 'Would tomorrow at 2pm work?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
-        isSent: true,
         status: MessageStatus.delivered,
         isSystem: false,
       ),
       Message(
         id: '4',
-        sender: widget.landlord,
+        senderId: widget.landlord.id,
         content: 'That works for me. I\'ll send you the address',
         timestamp: DateTime.now().subtract(const Duration(minutes: 22)),
-        isSent: false,
         isSystem: false,
       ),
       Message(
         id: '5',
-        sender: widget.landlord,
+        senderId: widget.landlord.id,
         content: 'Here is the address: 123 Main St, Downtown',
         timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
-        isSent: false,
         isSystem: false,
       ),
       Message(
         id: '6',
-        sender: User(
-          id: 'user1',
-          name: 'You',
-          email: 'you@example.com',
-          phone: '0000000000',
-          type: UserType.tenant,
-        ),
+        senderId: _currentUserId,
         content: 'Great! Looking forward to seeing it.',
         timestamp: DateTime.now().subtract(const Duration(minutes: 18)),
-        isSent: true,
         status: MessageStatus.sent,
         isSystem: false,
       ),
@@ -295,15 +272,14 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageBubble(Message message) {
     final isSystem = message.isSystem;
     final theme = Theme.of(context);
+    final isSent = message.senderId == _currentUserId;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: message.isSent
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
+        mainAxisAlignment: isSent ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!message.isSent && !isSystem)
+          if (!isSent && !isSystem)
             const CircleAvatar(
               backgroundImage: AssetImage('lib/assets/rent.webp'),
               radius: 16,
@@ -314,21 +290,21 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             child: Container(
               margin: EdgeInsets.only(
-                left: message.isSent ? 60 : 8,
-                right: message.isSent ? 0 : 60,
+                left: isSent ? 60 : 8,
+                right: isSent ? 0 : 60,
               ),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSystem
                     ? theme.colorScheme.primary.withOpacity(0.05)
-                    : message.isSent
+                    : isSent
                     ? theme.colorScheme.primary.withOpacity(0.15)
                     : theme.cardColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(message.isSent ? 16 : 0),
-                  bottomRight: Radius.circular(message.isSent ? 0 : 16),
+                  bottomLeft: Radius.circular(isSent ? 16 : 0),
+                  bottomRight: Radius.circular(isSent ? 0 : 16),
                 ),
                 border: isSystem
                     ? Border.all(
@@ -376,7 +352,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           fontSize: 10,
                         ),
                       ),
-                      if (message.isSent && !isSystem) ...[
+                      if (isSent && !isSystem) ...[
                         const SizedBox(width: 4),
                         Icon(
                           Icons.done_all,
@@ -487,15 +463,8 @@ class _ChatScreenState extends State<ChatScreen> {
           onTap: () {
             final newMessage = Message(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
-              sender: User(
-                id: 'user1',
-                name: 'You',
-                email: 'you@example.com',
-                phone: '0000000000',
-                type: UserType.tenant,
-              ),
+              senderId: _currentUserId,
               content: text,
-              isSent: true,
               status: MessageStatus.sent,
               isSystem: false,
             );
@@ -733,13 +702,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     // Add system message to chat
                     final systemMessage = Message(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      sender: User(
-                        id: 'system',
-                        name: 'System',
-                        email: 'system@example.com',
-                        phone: '0000000000',
-                        type: UserType.tenant,
-                      ),
+                      senderId: 'system',
                       content:
                           'Viewing scheduled for ${selectedDate.toLocal().toString().split(' ')[0]} at ${selectedTime.format(context)}',
                       isSystem: true,
@@ -765,16 +728,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final message = Message(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      sender: User(
-        id: 'user1',
-        name: 'You',
-        email: 'you@example.com',
-        phone: '0000000000',
-        type: UserType.tenant,
-      ),
+      senderId: _currentUserId,
       content: content,
       timestamp: DateTime.now(),
-      isSent: true,
       status: MessageStatus.sent,
     );
 
@@ -787,10 +743,9 @@ class _ChatScreenState extends State<ChatScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       final reply = Message(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        sender: widget.landlord,
+        senderId: widget.landlord.id,
         content: 'Thank you for your message! I will get back to you soon.',
         timestamp: DateTime.now().add(const Duration(seconds: 1)),
-        isSent: false,
       );
 
       setState(() {

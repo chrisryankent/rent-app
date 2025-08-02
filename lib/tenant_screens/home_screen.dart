@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'room_detail_screen.dart';
 import 'compare_screen.dart';
-import 'models/room.dart';
-import 'widgets/room_card.dart';
+import '../models/property.dart';
+import '../widgets/property_card.dart';
 import 'search_screen.dart';
 import 'deals_screen.dart';
 import 'top_picks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final ScrollController? scrollController;
-  final List<Room> favorites;
-  final void Function(Room) onToggleFavorite;
+  final List<Property> favorites;
+  final void Function(Property) onToggleFavorite;
   const HomeScreen({
     super.key,
     this.scrollController,
@@ -24,7 +23,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final List<Room> _rooms = Room.sampleData;
+  final List<Property> _properties = Property.sampleData;
   final List<String> _recentSearches = [
     'Downtown',
     'Near University',
@@ -37,8 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showRecent = false;
   bool _isRefreshing = false;
 
-  void _toggleFavorite(Room room) {
-    widget.onToggleFavorite(room);
+  void _toggleFavorite(Property property) {
+    widget.onToggleFavorite(property);
   }
 
   void _toggleView() {
@@ -111,14 +110,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _refreshRooms() async {
+  void _refreshProperties() async {
     setState(() {
       _isRefreshing = true;
     });
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
-      _rooms.clear();
-      _rooms.addAll(Room.sampleData);
+      _properties.clear();
+      _properties.addAll(Property.sampleData);
       _isRefreshing = false;
     });
   }
@@ -149,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CompareScreen(rooms: _rooms),
+                builder: (context) => CompareScreen(properties: _properties),
               ),
             ),
           ),
@@ -365,10 +364,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 260,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _rooms.length >= 2 ? 2 : _rooms.length,
+                    itemCount: _properties.length >= 2 ? 2 : _properties.length,
                     itemBuilder: (context, index) {
-                      if (index >= _rooms.length) return const SizedBox();
-                      final room = _rooms[index];
+                      if (index >= _properties.length) return const SizedBox();
+                      final property = _properties[index];
                       return Container(
                         width: 280,
                         margin: EdgeInsets.only(
@@ -377,21 +376,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Stack(
                           children: [
-                            RoomCard(
-                              room: room,
+                            PropertyCard(
+                              property: property,
                               isFeatured: true,
-                              isFavorite: widget.favorites.contains(room),
-                              onFavorite: () => _toggleFavorite(room),
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RoomDetailScreen(
-                                    room: room,
-                                    onFavorite: () => _toggleFavorite(room),
-                                    isFavorite: widget.favorites.contains(room),
-                                  ),
-                                ),
-                              ),
+                              isFavorite: widget.favorites.contains(property),
+                              onFavorite: () => _toggleFavorite(property),
+                              onTap: () {
+                                // TODO: Navigate to property detail screen
+                              },
                               isNew: true,
                               isRecommended: true,
                             ),
@@ -428,32 +420,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 220,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _rooms.length >= 4 ? 3 : (_rooms.length - 1).clamp(0, 3),
+                    itemCount: _properties.length >= 4 ? 3 : (_properties.length - 1).clamp(0, 3),
                     itemBuilder: (context, index) {
-                      final safeIndex = (index + 1) < _rooms.length ? (index + 1) : index;
-                      if (safeIndex >= _rooms.length) return const SizedBox();
-                      final room = _rooms[safeIndex];
+                      final safeIndex = (index + 1) < _properties.length ? (index + 1) : index;
+                      if (safeIndex >= _properties.length) return const SizedBox();
+                      final property = _properties[safeIndex];
                       return Container(
                         width: 280,
                         margin: EdgeInsets.only(
                           left: index == 0 ? 16 : 8,
                           right: index == 2 ? 16 : 8,
                         ),
-                        child: RoomCard(
-                          room: room,
+                        child: PropertyCard(
+                          property: property,
                           isRecommended: true,
-                          isFavorite: widget.favorites.contains(room),
-                          onFavorite: () => _toggleFavorite(room),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RoomDetailScreen(
-                                room: room,
-                                onFavorite: () => _toggleFavorite(room),
-                                isFavorite: widget.favorites.contains(room),
-                              ),
-                            ),
-                          ),
+                          isFavorite: widget.favorites.contains(property),
+                          onFavorite: () => _toggleFavorite(property),
+                          onTap: () {
+                            // TODO: Navigate to property detail screen
+                          },
                           isNew: true,
                         ),
                       );
@@ -497,30 +482,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     : SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
-                            if (index >= _rooms.length) return const SizedBox();
-                            final room = _rooms[index];
+                            if (index >= _properties.length) return const SizedBox();
+                            final property = _properties[index];
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                              child: RoomCard(
-                                room: room,
+                              child: PropertyCard(
+                                property: property,
                                 isNew: index % 3 == 0,
-                                isFavorite: widget.favorites.contains(room),
-                                onFavorite: () => _toggleFavorite(room),
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RoomDetailScreen(
-                                      room: room,
-                                      onFavorite: () => _toggleFavorite(room),
-                                      isFavorite: widget.favorites.contains(room),
-                                    ),
-                                  ),
-                                ),
+                                isFavorite: widget.favorites.contains(property),
+                                onFavorite: () => _toggleFavorite(property),
+                                onTap: () {
+                                  // TODO: Navigate to property detail screen
+                                },
                                 isRecommended: false,
                               ),
                             );
                           },
-                          childCount: _rooms.length,
+                          childCount: _properties.length,
                         ),
                       ),
               ),
@@ -532,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 44,
         width: 44,
         child: FloatingActionButton(
-          onPressed: _refreshRooms,
+          onPressed: _refreshProperties,
           backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
           child: _isRefreshing
               ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
@@ -613,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Map View Showing ${_rooms.length} Properties',
+                  'Map View Showing ${_properties.length} Properties',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

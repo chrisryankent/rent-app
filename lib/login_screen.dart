@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String _selectedRole = 'Renter';
+  String _selectedRole = 'Tenant';
   bool _obscurePassword = true;
 
   @override
@@ -40,12 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               ToggleButtons(
                 isSelected: [
-                  _selectedRole == 'Renter',
-                  _selectedRole == 'Landlord',
+                  _selectedRole == 'Tenant',
+                  _selectedRole == 'Owner',
                 ],
                 onPressed: (index) {
                   setState(() {
-                    _selectedRole = index == 0 ? 'Renter' : 'Landlord';
+                    _selectedRole = index == 0 ? 'Tenant' : 'Owner';
                   });
                 },
                 borderRadius: BorderRadius.circular(12),
@@ -54,11 +54,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: const [
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    child: Text('Renter'),
+                    child: Text('Tenant'),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    child: Text('Landlord'),
+                    child: Text('Owner'),
                   ),
                 ],
               ),
@@ -110,12 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 onPressed: () {
-                  if (_selectedRole == 'Renter') {
+                  if (_selectedRole == 'Tenant') {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const MainApp(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const MainApp()),
                     );
                   } else {
                     Navigator.push(

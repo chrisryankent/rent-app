@@ -16,11 +16,11 @@ class UploadFormSteps {
 class RequiredFields {
   static const List<String> mandatory = [
     'title',
-    'propertyType',
+    'propertyTypes',
     'bedrooms',
     'bathrooms',
     'rentAmount',
     'address',
-    'photos',
+    'images',
   ];
 }

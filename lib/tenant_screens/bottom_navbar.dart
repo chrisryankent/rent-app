@@ -5,7 +5,7 @@ import 'home_screen.dart';
 import 'favorites_screen.dart';
 import 'messages_screen.dart';
 import 'profile_screen.dart';
-import 'models/room.dart';
+import '../models/property.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -20,14 +20,14 @@ class _MainAppState extends State<MainApp> {
   double _lastOffset = 0;
   final ScrollController _scrollController = ScrollController();
 
-  final List<Room> _favorites = [];
+  final List<Property> _favorites = [];
 
-  void _toggleFavorite(Room room) {
+  void _toggleFavorite(Property property) {
     setState(() {
-      if (_favorites.contains(room)) {
-        _favorites.remove(room);
+      if (_favorites.contains(property)) {
+        _favorites.remove(property);
       } else {
-        _favorites.add(room);
+        _favorites.add(property);
       }
     });
   }

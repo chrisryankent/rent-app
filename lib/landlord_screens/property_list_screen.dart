@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models/property.dart';
+import '../models/property.dart';
 import 'property_detail_screen.dart';
 import 'edit_property_screen.dart';
 import 'property_upload_form.dart';
@@ -10,7 +10,7 @@ class PropertyListScreen extends StatefulWidget {
   final VoidCallback onCreateProperty;
   final int currentTabIndex;
   final void Function(int) onTabTapped;
-  
+
   const PropertyListScreen({
     super.key,
     required this.onCreateProperty,
@@ -75,8 +75,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
 
   List<Property> get _filteredProperties {
     List<Property> result = _properties.where((property) {
-      final matchesLandlord = property.landlordId == _currentLandlordId;
-      final matchesSearch = property.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      final matchesLandlord = property.ownerId == _currentLandlordId;
+      final matchesSearch =
+          property.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           property.address.toLowerCase().contains(_searchQuery.toLowerCase());
       final matchesStatus = property.status == _filterStatus;
       return matchesLandlord && matchesSearch && matchesStatus;
@@ -100,21 +101,28 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     return result;
   }
 
-  List<Property> get _landlordProperties => 
-      _properties.where((p) => p.landlordId == _currentLandlordId).toList();
+  List<Property> get _landlordProperties =>
+      _properties.where((p) => p.ownerId == _currentLandlordId).toList();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final filteredProperties = _filteredProperties;
     final landlordProperties = _landlordProperties;
-    final activeProperties = landlordProperties.where((p) => p.status == PropertyStatus.active).length;
-    final pendingProperties = landlordProperties.where((p) => p.status == PropertyStatus.pending).length;
+    final activeProperties = landlordProperties
+        .where((p) => p.status == PropertyStatus.active)
+        .length;
+    final pendingProperties = landlordProperties
+        .where((p) => p.status == PropertyStatus.pending)
+        .length;
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Properties', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'My Properties',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: theme.appBarTheme.backgroundColor,
         foregroundColor: theme.appBarTheme.foregroundColor,
         elevation: theme.appBarTheme.elevation,
@@ -122,7 +130,10 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         titleTextStyle: theme.appBarTheme.titleTextStyle,
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_list_rounded, color: theme.colorScheme.primary),
+            icon: Icon(
+              Icons.filter_list_rounded,
+              color: theme.colorScheme.primary,
+            ),
             tooltip: 'Filter Properties',
             onPressed: () => _showFilterOptions(context),
           ),
@@ -154,12 +165,24 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             ? _buildEmptyState(theme)
             : CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(child: _buildLandlordSummary(theme, landlordProperties)),
-                  SliverToBoxAdapter(child: _buildStatusTabs(theme, activeProperties, pendingProperties)),
+                  SliverToBoxAdapter(
+                    child: _buildLandlordSummary(theme, landlordProperties),
+                  ),
+                  SliverToBoxAdapter(
+                    child: _buildStatusTabs(
+                      theme,
+                      activeProperties,
+                      pendingProperties,
+                    ),
+                  ),
                   SliverToBoxAdapter(child: _buildSortControls(theme)),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildPropertyCard(context, theme, filteredProperties[index]),
+                      (context, index) => _buildPropertyCard(
+                        context,
+                        theme,
+                        filteredProperties[index],
+                      ),
                       childCount: filteredProperties.length,
                     ),
                   ),
@@ -188,17 +211,27 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Filter Properties', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Filter Properties',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 16),
-              ...PropertyStatus.values.map((status) => ListTile(
-                leading: Icon(status.icon, color: status.color),
-                title: Text(status.displayName),
-                trailing: _filterStatus == status ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary) : null,
-                onTap: () {
-                  setState(() => _filterStatus = status);
-                  Navigator.pop(context);
-                },
-              )),
+              ...PropertyStatus.values.map(
+                (status) => ListTile(
+                  leading: Icon(Icons.circle, color: status.color),
+                  title: Text(status.displayName),
+                  trailing: _filterStatus == status
+                      ? Icon(
+                          Icons.check,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                      : null,
+                  onTap: () {
+                    setState(() => _filterStatus = status);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -216,9 +249,14 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   }
 
   Widget _buildLandlordSummary(ThemeData theme, List<Property> properties) {
-    final totalValue = properties.fold<double>(0, (sum, p) => sum + p.rentAmount);
-    final activeProperties = properties.where((p) => p.status == PropertyStatus.active).length;
-    
+    final totalValue = properties.fold<double>(
+      0,
+      (sum, p) => sum + p.rentAmount,
+    );
+    final activeProperties = properties
+        .where((p) => p.status == PropertyStatus.active)
+        .length;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -239,23 +277,31 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                child: Icon(Icons.person, size: 34, color: theme.colorScheme.primary),
+                child: Icon(
+                  Icons.person,
+                  size: 34,
+                  color: theme.colorScheme.primary,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Welcome back, Landlord!', 
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface
-                        )),
+                    Text(
+                      'Welcome back, Landlord!',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('${properties.length} properties • $activeProperties active', 
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.7)
-                        )),
+                    Text(
+                      '${properties.length} properties • $activeProperties active',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -301,12 +347,13 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
               selected: _filterStatus == PropertyStatus.active,
               selectedColor: theme.colorScheme.primary.withOpacity(0.15),
               labelStyle: TextStyle(
-                color: _filterStatus == PropertyStatus.active 
-                    ? theme.colorScheme.primary 
+                color: _filterStatus == PropertyStatus.active
+                    ? theme.colorScheme.primary
                     : theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold
+                fontWeight: FontWeight.bold,
               ),
-              onSelected: (_) => setState(() => _filterStatus = PropertyStatus.active),
+              onSelected: (_) =>
+                  setState(() => _filterStatus = PropertyStatus.active),
             ),
           ),
           const SizedBox(width: 8),
@@ -316,12 +363,13 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
               selected: _filterStatus == PropertyStatus.pending,
               selectedColor: theme.colorScheme.primary.withOpacity(0.15),
               labelStyle: TextStyle(
-                color: _filterStatus == PropertyStatus.pending 
-                    ? theme.colorScheme.primary 
+                color: _filterStatus == PropertyStatus.pending
+                    ? theme.colorScheme.primary
                     : theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold
+                fontWeight: FontWeight.bold,
               ),
-              onSelected: (_) => setState(() => _filterStatus = PropertyStatus.pending),
+              onSelected: (_) =>
+                  setState(() => _filterStatus = PropertyStatus.pending),
             ),
           ),
         ],
@@ -329,7 +377,12 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     );
   }
 
-  Widget _buildSummaryItem(ThemeData theme, {required IconData icon, required String label, required String value}) {
+  Widget _buildSummaryItem(
+    ThemeData theme, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
     return Column(
       children: [
         Container(
@@ -341,13 +394,19 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           child: Icon(icon, color: theme.colorScheme.primary, size: 20),
         ),
         const SizedBox(height: 8),
-        Text(value, style: theme.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: theme.colorScheme.onSurface
-        )),
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.6)
-        )),
+        Text(
+          value,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
       ],
     );
   }
@@ -392,7 +451,11 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     );
   }
 
-  Widget _buildPropertyCard(BuildContext context, ThemeData theme, Property property) {
+  Widget _buildPropertyCard(
+    BuildContext context,
+    ThemeData theme,
+    Property property,
+  ) {
     return Card(
       elevation: 1,
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -430,7 +493,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
               child: Stack(
                 children: [
                   property.photos != null
@@ -444,13 +509,20 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                           height: 180,
                           width: double.infinity,
                           color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(Icons.home, size: 50, color: theme.colorScheme.onSurfaceVariant),
+                          child: Icon(
+                            Icons.home,
+                            size: 50,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                   Positioned(
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(20),
@@ -469,7 +541,10 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                     bottom: 12,
                     left: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: property.status.color.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(12),
@@ -499,25 +574,31 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                         child: Text(
                           property.title,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      Icon(Icons.arrow_forward_ios, 
-                          size: 16, 
-                          color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 16, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: theme.colorScheme.primary,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           property.address,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7)
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                       ),
@@ -528,22 +609,38 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                     spacing: 12,
                     runSpacing: 8,
                     children: [
-                      _buildFeatureChip(theme, '${property.bedrooms} bd', Icons.king_bed),
-                      _buildFeatureChip(theme, '${property.bathrooms} ba', Icons.bathtub),
-                      _buildFeatureChip(theme, '${property.squareFootage?.toStringAsFixed(0)} sqft', Icons.square_foot),
-                      if (property.amenities.contains('Parking'))
-                        _buildFeatureChip(theme, 'Parking', Icons.local_parking),
-                      if (property.amenities.contains('Pet Friendly'))
+                      _buildFeatureChip(
+                        theme,
+                        '${property.bedrooms} bd',
+                        Icons.king_bed,
+                      ),
+                      _buildFeatureChip(
+                        theme,
+                        '${property.bathrooms} ba',
+                        Icons.bathtub,
+                      ),
+                      _buildFeatureChip(
+                        theme,
+                        '${property.squareFootage?.toStringAsFixed(0)} sqft',
+                        Icons.square_foot,
+                      ),
+                      if (property.amenities != null && property.amenities!.contains('Parking'))
+                        _buildFeatureChip(
+                          theme,
+                          'Parking',
+                          Icons.local_parking,
+                        ),
+                      if (property.amenities?.contains('Pet Friendly') ?? false)
                         _buildFeatureChip(theme, 'Pets', Icons.pets),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    property.description.length > 100 
-                        ? '${property.description.substring(0, 100)}...' 
+                    property.description.length > 100
+                        ? '${property.description.substring(0, 100)}...'
                         : property.description,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.8)
+                      color: theme.colorScheme.onSurface.withOpacity(0.8),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -553,7 +650,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                       Text(
                         'Last updated: ${_formatDate(property.createdAt)}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.5)
+                          color: theme.colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
                       Row(
@@ -599,7 +696,11 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.home_work, size: 80, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+            Icon(
+              Icons.home_work,
+              size: 80,
+              color: theme.colorScheme.onSurface.withOpacity(0.3),
+            ),
             const SizedBox(height: 20),
             Text('No Properties Found', style: theme.textTheme.titleLarge),
             const SizedBox(height: 10),
@@ -611,7 +712,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                     : 'No properties match your search. Try different keywords.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6)
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ),
@@ -621,8 +722,13 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
               icon: const Icon(Icons.add),
               label: const Text('Add First Property'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -634,7 +740,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 7) {
       return '${date.day}/${date.month}/${date.year}';
     } else if (difference.inDays > 0) {

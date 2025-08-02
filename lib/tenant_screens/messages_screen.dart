@@ -2,9 +2,9 @@
 // messages_screen.dart
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:rental_connect/tenant_screens/models/user.dart';
+import 'package:rental_connect/models/user.dart';
 import 'chat_screen.dart';
-import 'models/message.dart';
+import '../models/message.dart';
 
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key});
@@ -12,56 +12,60 @@ class MessagesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final List<User> users = [
+      User(
+        id: '1',
+        name: 'Alex Morgan',
+        email: 'alex@example.com',
+        phone: '1234567890',
+        type: UserType.owner,
+        isVerified: true,
+      ),
+      User(
+        id: '2',
+        name: 'Property Management',
+        email: 'pm@example.com',
+        phone: '2345678901',
+        type: UserType.owner,
+        isVerified: true,
+      ),
+      User(
+        id: '3',
+        name: 'Sarah Johnson',
+        email: 'sarah@example.com',
+        phone: '3456789012',
+        type: UserType.owner,
+        isVerified: false,
+      ),
+    ];
     final List<Message> messages = [
       Message(
         id: '1',
-        sender: User(
-          id: '1',
-          name: 'Alex Morgan',
-          email: 'alex@example.com',
-          phone: '1234567890',
-          type: UserType.landlord,
-          isVerified: true,
-        ),
+        senderId: '1',
         content: 'Hi, is the apartment still available?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        isSent: false,
         status: MessageStatus.sent,
         isSystem: false,
       ),
       Message(
         id: '2',
-        sender: User(
-          id: '2',
-          name: 'Property Management',
-          email: 'pm@example.com',
-          phone: '2345678901',
-          type: UserType.landlord,
-          isVerified: true,
-        ),
+        senderId: '2',
         content: 'Your viewing has been confirmed for tomorrow',
         timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        isSent: false,
         status: MessageStatus.read,
         isSystem: false,
       ),
       Message(
         id: '3',
-        sender: User(
-          id: '3',
-          name: 'Sarah Johnson',
-          email: 'sarah@example.com',
-          phone: '3456789012',
-          type: UserType.landlord,
-          isVerified: false,
-        ),
+        senderId: '3',
         content: 'I can show you the property today at 4pm',
         timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        isSent: false,
         status: MessageStatus.delivered,
         isSystem: false,
       ),
     ];
+
+    User getUser(String id) => users.firstWhere((u) => u.id == id);
 
     return Scaffold(
       appBar: AppBar(
@@ -77,7 +81,8 @@ class MessagesScreen extends StatelessWidget {
         itemCount: messages.length,
         itemBuilder: (context, index) {
           final message = messages[index];
-          final isUnread = !message.isSent;
+          final user = getUser(message.senderId);
+          final isUnread = message.status != MessageStatus.read;
           return ListTile(
             leading: const CircleAvatar(
               backgroundImage: AssetImage('lib/assets/rent.webp'),
@@ -86,7 +91,7 @@ class MessagesScreen extends StatelessWidget {
             title: Row(
               children: [
                 Text(
-                  message.sender.name,
+                  user.name,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isUnread
@@ -94,7 +99,7 @@ class MessagesScreen extends StatelessWidget {
                         : theme.textTheme.bodyLarge?.color,
                   ),
                 ),
-                if (message.sender.isVerified)
+                if (user.isVerified)
                   Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: Icon(
@@ -142,7 +147,7 @@ class MessagesScreen extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatScreen(landlord: message.sender),
+                builder: (context) => ChatScreen(landlord: user),
               ),
             ),
           );

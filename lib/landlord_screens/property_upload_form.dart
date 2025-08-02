@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
-import 'models/property.dart';
+import '../models/property.dart';
 import 'upload_form_steps.dart' hide PropertyType;
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
@@ -62,43 +62,54 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
       setState(() => _uploadProgress = i / 100.0);
     }
 
-    final property = _buildPropertyFromData();
-    widget.onSubmit(property);
-    
-    setState(() => _isUploading = false);
-  }
-
-  Property _buildPropertyFromData() {
-    return Property(
+    final property = Property(
       id: '',
-      landlordId: '',
+      ownerId: '',
       createdAt: DateTime.now(),
       status: PropertyStatus.pending,
       title: _formData['title'] ?? '',
       propertyTypes: List<PropertyType>.from(_formData['propertyTypes'] ?? []),
-      rentAmount: double.tryParse(_formData['rentAmount']?.toString() ?? '0') ?? 0,
-      securityDeposit: double.tryParse(_formData['securityDeposit']?.toString() ?? '0') ?? 0,
-      availableDate: _formData['availableDate'] ?? DateTime.now(),
-      bedrooms: _formData['bedrooms'] != null ? int.tryParse(_formData['bedrooms'].toString()) : null,
-      bathrooms: _formData['bathrooms'] != null ? int.tryParse(_formData['bathrooms'].toString()) : null,
-      squareFootage: _formData['squareFootage'] != null ? double.tryParse(_formData['squareFootage'].toString()) : null,
+      rentAmount:
+          double.tryParse(_formData['rentAmount']?.toString() ?? '0') ?? 0,
+      address: _formData['address'] ?? '',
+      description: _formData['description'] ?? '',
+      securityDeposit: double.tryParse(
+        _formData['securityDeposit']?.toString() ?? '0',
+      ),
+      availableDate: _formData['availableDate'],
+      bedrooms: _formData['bedrooms'] != null
+          ? int.tryParse(_formData['bedrooms'].toString())
+          : null,
+      bathrooms: _formData['bathrooms'] != null
+          ? int.tryParse(_formData['bathrooms'].toString())
+          : null,
+      squareFootage: _formData['squareFootage'] != null
+          ? double.tryParse(_formData['squareFootage'].toString())
+          : null,
       furnishingStatus: _formData['furnishingStatus'],
-      floorLevel: _formData['floorLevel'] != null ? int.tryParse(_formData['floorLevel'].toString()) : null,
-      totalFloors: _formData['totalFloors'] != null ? int.tryParse(_formData['totalFloors'].toString()) : null,
+      floorLevel: _formData['floorLevel'] != null
+          ? int.tryParse(_formData['floorLevel'].toString())
+          : null,
+      totalFloors: _formData['totalFloors'] != null
+          ? int.tryParse(_formData['totalFloors'].toString())
+          : null,
       heatingType: _formData['heatingType'],
       coolingType: _formData['coolingType'],
       kitchenAppliances: _formData['kitchenAppliances'],
+      images: _formData['images'],
+      amenities: _formData['amenities'],
       laundryFacilities: _formData['laundryFacilities'],
       parking: _formData['parking'],
       petPolicy: _formData['petPolicy'],
       accessibilityFeatures: _formData['accessibilityFeatures'],
-      address: _formData['address'] ?? '',
       neighborhoodDesc: _formData['neighborhoodDesc'],
       transportationAccess: _formData['transportationAccess'],
       photos: _formData['photos'],
       virtualTourUrl: _formData['virtualTourUrl'],
       videoWalkthrough: _formData['videoWalkthrough'],
-      minLeaseMonths: _formData['minLeaseMonths'] != null ? int.tryParse(_formData['minLeaseMonths'].toString()) : null,
+      minLeaseMonths: _formData['minLeaseMonths'] != null
+          ? int.tryParse(_formData['minLeaseMonths'].toString())
+          : null,
       leaseType: _formData['leaseType'],
       applicationRequirements: _formData['applicationRequirements'],
       smokingPolicy: _formData['smokingPolicy'],
@@ -121,7 +132,81 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
       renovations: _formData['renovations'],
       specialFeatures: _formData['specialFeatures'],
       usp: _formData['usp'],
-      description: _formData['description'], amenities: [],
+    );
+    widget.onSubmit(property);
+
+    setState(() => _isUploading = false);
+  }
+
+  Property _buildPropertyFromData() {
+    return Property(
+      id: '',
+      ownerId: '',
+      createdAt: DateTime.now(),
+      status: PropertyStatus.pending,
+      title: _formData['title'] ?? '',
+      propertyTypes: List<PropertyType>.from(_formData['propertyTypes'] ?? []),
+      rentAmount:
+          double.tryParse(_formData['rentAmount']?.toString() ?? '0') ?? 0,
+      securityDeposit:
+          double.tryParse(_formData['securityDeposit']?.toString() ?? '0') ?? 0,
+      availableDate: _formData['availableDate'] ?? DateTime.now(),
+      bedrooms: _formData['bedrooms'] != null
+          ? int.tryParse(_formData['bedrooms'].toString())
+          : null,
+      bathrooms: _formData['bathrooms'] != null
+          ? int.tryParse(_formData['bathrooms'].toString())
+          : null,
+      squareFootage: _formData['squareFootage'] != null
+          ? double.tryParse(_formData['squareFootage'].toString())
+          : null,
+      furnishingStatus: _formData['furnishingStatus'],
+      floorLevel: _formData['floorLevel'] != null
+          ? int.tryParse(_formData['floorLevel'].toString())
+          : null,
+      totalFloors: _formData['totalFloors'] != null
+          ? int.tryParse(_formData['totalFloors'].toString())
+          : null,
+      heatingType: _formData['heatingType'],
+      coolingType: _formData['coolingType'],
+      kitchenAppliances: _formData['kitchenAppliances'],
+      laundryFacilities: _formData['laundryFacilities'],
+      parking: _formData['parking'],
+      petPolicy: _formData['petPolicy'],
+      accessibilityFeatures: _formData['accessibilityFeatures'],
+      address: _formData['address'] ?? '',
+      neighborhoodDesc: _formData['neighborhoodDesc'],
+      transportationAccess: _formData['transportationAccess'],
+      photos: _formData['photos'],
+      virtualTourUrl: _formData['virtualTourUrl'],
+      videoWalkthrough: _formData['videoWalkthrough'],
+      minLeaseMonths: _formData['minLeaseMonths'] != null
+          ? int.tryParse(_formData['minLeaseMonths'].toString())
+          : null,
+      leaseType: _formData['leaseType'],
+      applicationRequirements: _formData['applicationRequirements'],
+      smokingPolicy: _formData['smokingPolicy'],
+      guestPolicy: _formData['guestPolicy'],
+      noiseRestrictions: _formData['noiseRestrictions'],
+      maintenanceResponsibilities: _formData['maintenanceResponsibilities'],
+      sublettingPolicy: _formData['sublettingPolicy'],
+      contactMethod: _formData['contactMethod'],
+      showingSchedule: _formData['showingSchedule'],
+      contactName: _formData['contactName'],
+      contactRole: _formData['contactRole'],
+      safetyCertifications: _formData['safetyCertifications'],
+      buildingPermits: _formData['buildingPermits'],
+      rentalLicenseNumber: _formData['rentalLicenseNumber'],
+      energyRating: _formData['energyRating'],
+      parks: _formData['parks'],
+      restaurants: _formData['restaurants'],
+      groceries: _formData['groceries'],
+      communityFeatures: _formData['communityFeatures'],
+      renovations: _formData['renovations'],
+      specialFeatures: _formData['specialFeatures'],
+      usp: _formData['usp'],
+      description: _formData['description'],
+      amenities: [],
     );
   }
 
@@ -156,11 +241,13 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
         'videoWalkthrough': widget.initialProperty!.videoWalkthrough,
         'minLeaseMonths': widget.initialProperty!.minLeaseMonths,
         'leaseType': widget.initialProperty!.leaseType,
-        'applicationRequirements': widget.initialProperty!.applicationRequirements,
+        'applicationRequirements':
+            widget.initialProperty!.applicationRequirements,
         'smokingPolicy': widget.initialProperty!.smokingPolicy,
         'guestPolicy': widget.initialProperty!.guestPolicy,
         'noiseRestrictions': widget.initialProperty!.noiseRestrictions,
-        'maintenanceResponsibilities': widget.initialProperty!.maintenanceResponsibilities,
+        'maintenanceResponsibilities':
+            widget.initialProperty!.maintenanceResponsibilities,
         'sublettingPolicy': widget.initialProperty!.sublettingPolicy,
         'contactMethod': widget.initialProperty!.contactMethod,
         'showingSchedule': widget.initialProperty!.showingSchedule,
@@ -181,7 +268,8 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
     }
   }
 
-  String _capitalize(String s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+  String _capitalize(String s) =>
+      s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 
   @override
   Widget build(BuildContext context) {
@@ -216,14 +304,21 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(UploadFormSteps.steps.length, (index) {
+                    children: List.generate(UploadFormSteps.steps.length, (
+                      index,
+                    ) {
                       final isActive = index == _currentStep;
                       final isCompleted = index < _currentStep;
                       return Expanded(
@@ -234,8 +329,8 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                             color: isCompleted
                                 ? primaryColor
                                 : isActive
-                                    ? primaryColor
-                                    : Colors.grey.withOpacity(0.2),
+                                ? primaryColor
+                                : Colors.grey.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -246,7 +341,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -294,17 +392,25 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                border: Border(top: BorderSide(color: theme.dividerColor.withOpacity(0.2)))),
+                border: Border(
+                  top: BorderSide(color: theme.dividerColor.withOpacity(0.2)),
+                ),
+              ),
               child: Row(
                 children: [
                   if (_currentStep > 0)
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: _prevStep,
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                        ),
                         label: const Text('Back'),
                         style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           side: BorderSide(color: theme.dividerColor),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
@@ -316,7 +422,8 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     child: _isUploading
                         ? LinearProgressIndicator(
                             value: _uploadProgress,
-                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                            backgroundColor:
+                                theme.colorScheme.surfaceContainerHighest,
                             color: primaryColor,
                             minHeight: 48,
                             borderRadius: BorderRadius.circular(12),
@@ -324,21 +431,25 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                         : ElevatedButton.icon(
                             onPressed: _nextStep,
                             icon: Icon(
-                              _currentStep == UploadFormSteps.steps.length - 1 
-                                  ? Icons.check_rounded 
+                              _currentStep == UploadFormSteps.steps.length - 1
+                                  ? Icons.check_rounded
                                   : Icons.arrow_forward_rounded,
                               size: 20,
                             ),
                             label: Text(
-                              _currentStep == UploadFormSteps.steps.length - 1 
-                                  ? 'Submit Property' 
+                              _currentStep == UploadFormSteps.steps.length - 1
+                                  ? 'Submit Property'
                                   : 'Continue',
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColor,
                               foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               elevation: 0,
                             ),
@@ -373,26 +484,42 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                 labelText: 'Property Title*',
                 prefixIcon: const Icon(Iconsax.house),
                 filled: true,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
                 hintText: 'Modern 2BR Apartment in Downtown',
-                suffixIcon: Icon(Iconsax.info_circle, color: theme.colorScheme.primary),
+                suffixIcon: Icon(
+                  Iconsax.info_circle,
+                  color: theme.colorScheme.primary,
+                ),
               ),
               onChanged: (v) => _formData['title'] = v,
               validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 20),
-            Text('Property Types*', style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+            Text(
+              'Property Types*',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 10,
               runSpacing: 10,
               children: PropertyType.values.map((type) {
-                final selected = (_formData['propertyTypes'] ?? <PropertyType>[]).contains(type);
+                final selected =
+                    (_formData['propertyTypes'] ?? <PropertyType>[]).contains(
+                      type,
+                    );
                 return ChoiceChip(
                   label: Text(
                     _capitalize(type.name.replaceAll('_', ' ')),
                     style: TextStyle(
-                      color: selected ? Colors.white : theme.colorScheme.onSurface,
+                      color: selected
+                          ? Colors.white
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                   selected: selected,
@@ -403,7 +530,9 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                   ),
                   onSelected: (val) {
                     setState(() {
-                      final list = List<PropertyType>.from(_formData['propertyTypes'] ?? []);
+                      final list = List<PropertyType>.from(
+                        _formData['propertyTypes'] ?? [],
+                      );
                       if (val) {
                         list.add(type);
                       } else {
@@ -431,24 +560,32 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                       labelText: 'Rent Amount*',
                       prefixIcon: const Icon(Iconsax.dollar_circle),
                       filled: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                       hintText: 'e.g. 1200',
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: (v) => _formData['rentAmount'] = v,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Required' : null,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: TextFormField(
-                    initialValue: _formData['securityDeposit']?.toString() ?? '',
+                    initialValue:
+                        _formData['securityDeposit']?.toString() ?? '',
                     decoration: InputDecoration(
                       labelText: 'Security Deposit',
                       prefixIcon: const Icon(Iconsax.security_safe),
                       filled: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                       hintText: 'Optional',
                     ),
                     keyboardType: TextInputType.number,
@@ -465,16 +602,22 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                 child: TextFormField(
                   controller: TextEditingController(
                     text: _formData['availableDate'] != null
-                        ? '${_formData['availableDate']!.toLocal()}'.split(' ')[0]
+                        ? '${_formData['availableDate']!.toLocal()}'.split(
+                            ' ',
+                          )[0]
                         : '',
                   ),
                   decoration: InputDecoration(
                     labelText: 'Available Move-in Date*',
                     prefixIcon: const Icon(Iconsax.calendar),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
-                  validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Required' : null,
                 ),
               ),
             ),
@@ -506,12 +649,16 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     labelText: 'Bedrooms*',
                     prefixIcon: const Icon(Iconsax.back_square),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: (v) => _formData['bedrooms'] = v,
-                  validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Required' : null,
                 ),
               ),
               const SizedBox(width: 16),
@@ -522,12 +669,16 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     labelText: 'Bathrooms*',
                     prefixIcon: const Icon(Iconsax.ranking),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: (v) => _formData['bathrooms'] = v,
-                  validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Required' : null,
                 ),
               ),
             ],
@@ -539,7 +690,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Square Footage*',
               prefixIcon: const Icon(Iconsax.ruler),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. 900',
             ),
             keyboardType: TextInputType.number,
@@ -549,18 +703,24 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           ),
           const SizedBox(height: 20),
           DropdownButtonFormField(
-            value: _formData['furnishingStatus'] ?? FurnishingStatus.unfurnished,
+            value:
+                _formData['furnishingStatus'] ?? FurnishingStatus.unfurnished,
             decoration: InputDecoration(
               labelText: 'Furnishing Status',
               prefixIcon: const Icon(Iconsax.car),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
             items: FurnishingStatus.values
-                .map((e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(_capitalize(e.name)),
-                    ))
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(_capitalize(e.name)),
+                  ),
+                )
                 .toList(),
             onChanged: (v) => setState(() => _formData['furnishingStatus'] = v),
           ),
@@ -580,7 +740,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     labelText: 'Floor Level',
                     prefixIcon: const Icon(Iconsax.building),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                     hintText: 'e.g. 5',
                   ),
                   keyboardType: TextInputType.number,
@@ -596,7 +759,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     labelText: 'Total Floors',
                     prefixIcon: const Icon(Iconsax.buildings),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                     hintText: 'e.g. 10',
                   ),
                   keyboardType: TextInputType.number,
@@ -627,29 +793,38 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: [
-              'Refrigerator', 'Oven', 'Microwave', 'Dishwasher', 'Stove', 'Garbage disposal'
-            ].map((appliance) {
-              final selected = (_formData['kitchenAppliances'] ?? []).contains(appliance);
-              return FilterChip(
-                label: Text(appliance),
-                selected: selected,
-                onSelected: (val) {
-                  setState(() {
-                    final list = List<String>.from(_formData['kitchenAppliances'] ?? []);
-                    if (val) {
-                      list.add(appliance);
-                    } else {
-                      list.remove(appliance);
-                    }
-                    _formData['kitchenAppliances'] = list;
-                  });
-                },
-                backgroundColor: theme.cardColor,
-                selectedColor: theme.colorScheme.primary.withOpacity(0.2),
-                checkmarkColor: theme.colorScheme.primary,
-              );
-            }).toList(),
+            children:
+                [
+                  'Refrigerator',
+                  'Oven',
+                  'Microwave',
+                  'Dishwasher',
+                  'Stove',
+                  'Garbage disposal',
+                ].map((appliance) {
+                  final selected = (_formData['kitchenAppliances'] ?? [])
+                      .contains(appliance);
+                  return FilterChip(
+                    label: Text(appliance),
+                    selected: selected,
+                    onSelected: (val) {
+                      setState(() {
+                        final list = List<String>.from(
+                          _formData['kitchenAppliances'] ?? [],
+                        );
+                        if (val) {
+                          list.add(appliance);
+                        } else {
+                          list.remove(appliance);
+                        }
+                        _formData['kitchenAppliances'] = list;
+                      });
+                    },
+                    backgroundColor: theme.cardColor,
+                    selectedColor: theme.colorScheme.primary.withOpacity(0.2),
+                    checkmarkColor: theme.colorScheme.primary,
+                  );
+                }).toList(),
           ),
           const SizedBox(height: 24),
           _SectionHeader(
@@ -661,9 +836,7 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: [
-              'In-unit', 'Shared', 'None'
-            ].map((option) {
+            children: ['In-unit', 'Shared', 'None'].map((option) {
               final selected = _formData['laundryFacilities'] == option;
               return ChoiceChip(
                 label: Text(option),
@@ -688,9 +861,9 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: [
-              'Garage', 'Street', 'Assigned Spot', 'None'
-            ].map((option) {
+            children: ['Garage', 'Street', 'Assigned Spot', 'None'].map((
+              option,
+            ) {
               final selected = _formData['parking'] == option;
               return ChoiceChip(
                 label: Text(option),
@@ -718,7 +891,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
             decoration: InputDecoration(
               hintText: 'e.g. Pets allowed with deposit, no aggressive breeds',
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
             onChanged: (v) => _formData['petPolicy'] = v,
           ),
@@ -732,29 +908,37 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: [
-              'Elevator', 'Ramp', 'Wide doorways', 'Grab bars', 'Roll-in shower'
-            ].map((feature) {
-              final selected = (_formData['accessibilityFeatures'] ?? []).contains(feature);
-              return FilterChip(
-                label: Text(feature),
-                selected: selected,
-                onSelected: (val) {
-                  setState(() {
-                    final list = List<String>.from(_formData['accessibilityFeatures'] ?? []);
-                    if (val) {
-                      list.add(feature);
-                    } else {
-                      list.remove(feature);
-                    }
-                    _formData['accessibilityFeatures'] = list;
-                  });
-                },
-                backgroundColor: theme.cardColor,
-                selectedColor: theme.colorScheme.primary.withOpacity(0.2),
-                checkmarkColor: theme.colorScheme.primary,
-              );
-            }).toList(),
+            children:
+                [
+                  'Elevator',
+                  'Ramp',
+                  'Wide doorways',
+                  'Grab bars',
+                  'Roll-in shower',
+                ].map((feature) {
+                  final selected = (_formData['accessibilityFeatures'] ?? [])
+                      .contains(feature);
+                  return FilterChip(
+                    label: Text(feature),
+                    selected: selected,
+                    onSelected: (val) {
+                      setState(() {
+                        final list = List<String>.from(
+                          _formData['accessibilityFeatures'] ?? [],
+                        );
+                        if (val) {
+                          list.add(feature);
+                        } else {
+                          list.remove(feature);
+                        }
+                        _formData['accessibilityFeatures'] = list;
+                      });
+                    },
+                    backgroundColor: theme.cardColor,
+                    selectedColor: theme.colorScheme.primary.withOpacity(0.2),
+                    checkmarkColor: theme.colorScheme.primary,
+                  );
+                }).toList(),
           ),
           const SizedBox(height: 40),
         ],
@@ -780,7 +964,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Full Address*',
               prefixIcon: const Icon(Iconsax.map),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
             onChanged: (v) => _formData['address'] = v,
             validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
@@ -793,8 +980,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Neighborhood Description',
               prefixIcon: const Icon(Iconsax.info_circle),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-              hintText: 'Describe the neighborhood, nearby amenities, and attractions...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
             onChanged: (v) => _formData['neighborhoodDesc'] = v,
           ),
@@ -811,10 +1000,16 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Transportation Access',
               prefixIcon: const Icon(Iconsax.bus),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Subway, Bus, Train',
             ),
-            onChanged: (v) => _formData['transportationAccess'] = v.split(',').map((e) => e.trim()).toList(),
+            onChanged: (v) => _formData['transportationAccess'] = v
+                .split(',')
+                .map((e) => e.trim())
+                .toList(),
           ),
           const SizedBox(height: 40),
         ],
@@ -836,7 +1031,9 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           const SizedBox(height: 24),
           Text(
             'Property Photos*',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -854,12 +1051,13 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Iconsax.gallery_add, size: 48, color: theme.colorScheme.primary),
-                const SizedBox(height: 16),
-                Text(
-                  'Tap to add photos',
-                  style: theme.textTheme.titleMedium,
+                Icon(
+                  Iconsax.gallery_add,
+                  size: 48,
+                  color: theme.colorScheme.primary,
                 ),
+                const SizedBox(height: 16),
+                Text('Tap to add photos', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
                 Text(
                   'or drag and drop files here',
@@ -875,12 +1073,25 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Image URLs (comma separated)*',
               prefixIcon: const Icon(Iconsax.link),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               helperText: 'For demo purposes only',
             ),
-            onChanged: (v) => _formData['photos'] = v.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+            onChanged: (v) => _formData['photos'] = v
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList(),
             validator: (v) {
-              final list = v?.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList() ?? [];
+              final list =
+                  v
+                      ?.split(',')
+                      .map((e) => e.trim())
+                      .where((e) => e.isNotEmpty)
+                      .toList() ??
+                  [];
               return list.isEmpty ? 'At least one photo is required' : null;
             },
           ),
@@ -897,7 +1108,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Virtual Tour URL',
               prefixIcon: const Icon(Iconsax.video_play),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'https://example.com/tour',
             ),
             onChanged: (v) => _formData['virtualTourUrl'] = v,
@@ -909,7 +1123,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Video Walkthrough URL',
               prefixIcon: const Icon(Iconsax.video),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'https://example.com/walkthrough',
             ),
             onChanged: (v) => _formData['videoWalkthrough'] = v,
@@ -934,22 +1151,28 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           const SizedBox(height: 24),
           Text(
             'Utilities Included',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: [
-              'Water', 'Gas', 'Electricity', 'Internet', 'Trash'
-            ].map((utility) {
-              final selected = (_formData['utilitiesIncluded'] ?? []).contains(utility);
+            children: ['Water', 'Gas', 'Electricity', 'Internet', 'Trash'].map((
+              utility,
+            ) {
+              final selected = (_formData['utilitiesIncluded'] ?? []).contains(
+                utility,
+              );
               return FilterChip(
                 label: Text(utility),
                 selected: selected,
                 onSelected: (val) {
                   setState(() {
-                    final list = List<String>.from(_formData['utilitiesIncluded'] ?? []);
+                    final list = List<String>.from(
+                      _formData['utilitiesIncluded'] ?? [],
+                    );
                     if (val) {
                       list.add(utility);
                     } else {
@@ -971,7 +1194,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Average Monthly Utility Cost',
               prefixIcon: const Icon(Iconsax.money),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. 120',
             ),
             keyboardType: TextInputType.number,
@@ -981,22 +1207,26 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
           const SizedBox(height: 20),
           Text(
             'Additional Fees',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: [
-              'Maintenance', 'HOA', 'Parking', 'Pet fee'
-            ].map((fee) {
-              final selected = (_formData['additionalFees'] ?? []).contains(fee);
+            children: ['Maintenance', 'HOA', 'Parking', 'Pet fee'].map((fee) {
+              final selected = (_formData['additionalFees'] ?? []).contains(
+                fee,
+              );
               return FilterChip(
                 label: Text(fee),
                 selected: selected,
                 onSelected: (val) {
                   setState(() {
-                    final list = List<String>.from(_formData['additionalFees'] ?? []);
+                    final list = List<String>.from(
+                      _formData['additionalFees'] ?? [],
+                    );
                     if (val) {
                       list.add(fee);
                     } else {
@@ -1027,7 +1257,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     labelText: 'Minimum Lease Months',
                     prefixIcon: const Icon(Iconsax.calendar_1),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                     hintText: 'e.g. 12',
                   ),
                   keyboardType: TextInputType.number,
@@ -1043,13 +1276,18 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                     labelText: 'Lease Type',
                     prefixIcon: const Icon(Iconsax.document),
                     filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   items: LeaseType.values
-                      .map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(_capitalize(e.name)),
-                          ))
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(_capitalize(e.name)),
+                        ),
+                      )
                       .toList(),
                   onChanged: (v) => setState(() => _formData['leaseType'] = v),
                 ),
@@ -1080,7 +1318,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Smoking Policy*',
               prefixIcon: const Icon(Icons.smoke_free),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. No smoking allowed',
             ),
             onChanged: (v) => _formData['smokingPolicy'] = v,
@@ -1093,7 +1334,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Guest Policy',
               prefixIcon: const Icon(Icons.people),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Guests allowed up to 7 nights',
             ),
             onChanged: (v) => _formData['guestPolicy'] = v,
@@ -1105,7 +1349,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Noise Restrictions',
               prefixIcon: const Icon(Icons.volume_off),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Quiet hours 10pm-7am',
             ),
             onChanged: (v) => _formData['noiseRestrictions'] = v,
@@ -1117,7 +1364,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Maintenance Responsibilities',
               prefixIcon: const Icon(Icons.handyman),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Landlord handles all major repairs',
             ),
             onChanged: (v) => _formData['maintenanceResponsibilities'] = v,
@@ -1129,7 +1379,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Subletting Policy',
               prefixIcon: const Icon(Icons.swap_horiz),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Not allowed without written consent',
             ),
             onChanged: (v) => _formData['sublettingPolicy'] = v,
@@ -1147,7 +1400,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Preferred Contact Method',
               prefixIcon: const Icon(Icons.contact_mail),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Phone, Email, Text',
             ),
             onChanged: (v) => _formData['contactMethod'] = v,
@@ -1159,7 +1415,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Showing Availability',
               prefixIcon: const Icon(Icons.schedule),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Weekdays 5-7pm, Weekends 10am-2pm',
             ),
             onChanged: (v) => _formData['showingSchedule'] = v,
@@ -1171,7 +1430,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Contact Name',
               prefixIcon: const Icon(Icons.person),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
             onChanged: (v) => _formData['contactName'] = v,
           ),
@@ -1182,7 +1444,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               labelText: 'Contact Role',
               prefixIcon: const Icon(Icons.badge),
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
               hintText: 'e.g. Owner, Property Manager',
             ),
             onChanged: (v) => _formData['contactRole'] = v,
@@ -1205,7 +1470,11 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
                 color: theme.colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Iconsax.tick_circle, size: 48, color: theme.colorScheme.primary),
+              child: Icon(
+                Iconsax.tick_circle,
+                size: 48,
+                color: theme.colorScheme.primary,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -1228,7 +1497,9 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
             title: 'Basic Information',
             items: {
               'Title': _formData['title'] ?? '',
-              'Property Types': (_formData['propertyTypes'] ?? []).map((e) => _capitalize(e.name.replaceAll('_', ' '))).join(', '),
+              'Property Types': (_formData['propertyTypes'] ?? [])
+                  .map((e) => _capitalize(e.name.replaceAll('_', ' ')))
+                  .join(', '),
               'Rent Amount': '\$${_formData['rentAmount'] ?? '0'}/mo',
               'Available Date': _formData['availableDate'] != null
                   ? '${_formData['availableDate']!.toLocal()}'.split(' ')[0]
@@ -1243,7 +1514,10 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
               'Bedrooms': _formData['bedrooms']?.toString() ?? '',
               'Bathrooms': _formData['bathrooms']?.toString() ?? '',
               'Square Footage': '${_formData['squareFootage'] ?? ''} sqft',
-              'Furnishing': _capitalize((_formData['furnishingStatus'] ?? FurnishingStatus.unfurnished).name),
+              'Furnishing': _capitalize(
+                (_formData['furnishingStatus'] ?? FurnishingStatus.unfurnished)
+                    .name,
+              ),
             },
           ),
           const SizedBox(height: 20),
@@ -1252,7 +1526,9 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
             title: 'Location',
             items: {
               'Address': _formData['address'] ?? '',
-              'Transportation': (_formData['transportationAccess'] ?? []).join(', '),
+              'Transportation': (_formData['transportationAccess'] ?? []).join(
+                ', ',
+              ),
             },
           ),
           const SizedBox(height: 20),
@@ -1260,8 +1536,12 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
             icon: Iconsax.setting,
             title: 'Pricing & Rules',
             items: {
-              'Utilities Included': (_formData['utilitiesIncluded'] ?? []).join(', '),
-              'Lease Type': _capitalize((_formData['leaseType'] ?? LeaseType.fixedTerm).name),
+              'Utilities Included': (_formData['utilitiesIncluded'] ?? []).join(
+                ', ',
+              ),
+              'Lease Type': _capitalize(
+                (_formData['leaseType'] ?? LeaseType.fixedTerm).name,
+              ),
               'Smoking Policy': _formData['smokingPolicy'] ?? '',
             },
           ),
@@ -1298,7 +1578,7 @@ class _SectionHeader extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  
+
   const _SectionHeader({
     required this.icon,
     required this.title,
@@ -1324,9 +1604,19 @@ class _SectionHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6))),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
             ],
           ),
         ),
@@ -1339,7 +1629,7 @@ class _ReviewCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final Map<String, String> items;
-  
+
   const _ReviewCard({
     required this.icon,
     required this.title,
@@ -1364,34 +1654,38 @@ class _ReviewCard extends StatelessWidget {
               children: [
                 Icon(icon, size: 20, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
-                Text(title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  title,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            ...items.entries.map((e) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      e.key,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+            ...items.entries.map(
+              (e) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        e.key,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      e.value,
-                      style: theme.textTheme.bodyMedium,
+                    Expanded(
+                      flex: 3,
+                      child: Text(e.value, style: theme.textTheme.bodyMedium),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),

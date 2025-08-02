@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/user.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,8 +14,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _propertyController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
   String _selectedRole = 'Tenant';
   bool _obscurePassword = true;
 
@@ -44,11 +43,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ToggleButtons(
                   isSelected: [
                     _selectedRole == 'Tenant',
-                    _selectedRole == 'Landlord',
+                    _selectedRole == 'Owner',
                   ],
                   onPressed: (index) {
                     setState(() {
-                      _selectedRole = index == 0 ? 'Tenant' : 'Landlord';
+                      _selectedRole = index == 0 ? 'Tenant' : 'Owner';
                     });
                   },
                   borderRadius: BorderRadius.circular(12),
@@ -67,7 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         horizontal: 24,
                         vertical: 8,
                       ),
-                      child: Text('Landlord'),
+                      child: Text('Owner'),
                     ),
                   ],
                 ),
@@ -130,30 +129,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       : null,
                 ),
                 const SizedBox(height: 16),
-                if (_selectedRole == 'Landlord') ...[
-                  TextFormField(
-                    controller: _propertyController,
-                    decoration: const InputDecoration(
-                      labelText: 'Property Name',
-                      prefixIcon: Icon(Icons.home_work),
-                    ),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Enter your property name'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Property Location',
-                      prefixIcon: Icon(Icons.location_on),
-                    ),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Enter property location'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                ],
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.primaryColor,
@@ -164,7 +139,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      // Registration logic here
+                      final user = User(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: _nameController.text.trim(),
+                        email: _emailController.text.trim(),
+                        phone: _phoneController.text.trim(),
+                        type: _selectedRole == 'Tenant'
+                            ? UserType.tenant
+                            : UserType.owner,
+                        isVerified: false,
+                      );
+                      // For now, just print/log the user object
+                      print(
+                        'Registered user: \nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone}\nType: ${user.type}',
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Registration successful!'),

@@ -1,30 +1,33 @@
-// room_detail_screen.dart
+// property_detail_screen.dart
 import 'package:flutter/material.dart';
-import 'models/room.dart';
+import '../models/property.dart';
 import 'chat_screen.dart';
-import 'widgets/filter_chip.dart';
-import 'widgets/comment_item.dart';
+import '../widgets/filter_chip.dart';
+import '../widgets/comment_item.dart';
+import '../models/user.dart';
 
-class RoomDetailScreen extends StatefulWidget {
-  final Room room;
+class PropertyDetailScreen extends StatefulWidget {
+  final Property property;
   final VoidCallback onFavorite;
   final bool isFavorite;
+  final User owner;
 
-  const RoomDetailScreen({
+  const PropertyDetailScreen({
     super.key,
-    required this.room,
+    required this.property,
     required this.onFavorite,
     required this.isFavorite,
+    required this.owner,
   });
 
   @override
-  State<RoomDetailScreen> createState() => _RoomDetailScreenState();
+  State<PropertyDetailScreen> createState() => _PropertyDetailScreenState();
 }
 
-class _RoomDetailScreenState extends State<RoomDetailScreen> {
+class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   final TextEditingController _commentController = TextEditingController();
   final List<String> _comments = [
-    "Is the room available from next month?",
+    "Is the property available from next month?",
     "Are utilities included in the rent?",
     "What's the parking situation?",
   ];
@@ -41,10 +44,10 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
               background: Stack(
                 children: [
                   PageView.builder(
-                    itemCount: widget.room.images.length,
+                    itemCount: widget.property.images?.length ?? 0,
                     itemBuilder: (context, index) {
                       return Image.asset(
-                        widget.room.images[index],
+                        widget.property.images![index],
                         fit: BoxFit.cover,
                       );
                     },
@@ -77,14 +80,14 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        widget.room.title,
+                        widget.property.title,
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                     Text(
-                      '\$${widget.room.price}/mo',
+                      '${widget.property.rentAmount}/mo',
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: theme.colorScheme.primary,
@@ -99,7 +102,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                     Icon(Icons.location_on, size: 18, color: theme.hintColor),
                     const SizedBox(width: 8),
                     Text(
-                      widget.room.location,
+                      widget.property.address,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.hintColor,
                       ),
@@ -124,7 +127,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                           Icon(Icons.star, size: 16, color: Colors.amber),
                           const SizedBox(width: 4),
                           Text(
-                            '${widget.room.rating} (${widget.room.reviews} reviews)',
+                            '${widget.property.bedrooms ?? '-'} bd, ${widget.property.bathrooms ?? '-'} ba',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w500,
                             ),
@@ -134,7 +137,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      widget.room.timeAgo,
+                      widget.property.timeAgo,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.hintColor,
                       ),
@@ -156,26 +159,21 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                   children: [
                     FeatureChip(
                       icon: Icons.square_foot,
-                      text: '${widget.room.size} sqft',
+                      text: '${widget.property.squareFootage ?? '-'} sqft',
                     ),
                     FeatureChip(
                       icon: Icons.bed,
-                      text: '${widget.room.bedrooms} Bedrooms',
+                      text: '${widget.property.bedrooms ?? '-'} Bedrooms',
                     ),
                     FeatureChip(
                       icon: Icons.bathtub,
-                      text: '${widget.room.bathrooms} Bathrooms',
+                      text: '${widget.property.bathrooms ?? '-'} Bathrooms',
                     ),
-                    FeatureChip(
-                      icon: Icons.local_parking,
-                      text: widget.room.parking ? 'Parking' : 'No Parking',
-                    ),
-                    FeatureChip(
-                      icon: Icons.pets,
-                      text: widget.room.petFriendly
-                          ? 'Pet Friendly'
-                          : 'No Pets',
-                    ),
+                    if (widget.property.kitchenAppliances != null && widget.property.kitchenAppliances!.isNotEmpty)
+                      FeatureChip(
+                        icon: Icons.kitchen,
+                        text: 'Kitchen Appliances',
+                      ),
                     FeatureChip(icon: Icons.wifi, text: 'WiFi Included'),
                   ],
                 ),
@@ -189,7 +187,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  widget.room.description,
+                  widget.property.description,
                   style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
                 ),
                 // Map
@@ -218,7 +216,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          '${widget.room.distance} miles from city center',
+                          '${widget.property.address}',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.primary,
                           ),
@@ -298,7 +296,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
         padding: const EdgeInsets.all(16),
         child: ElevatedButton.icon(
           icon: const Icon(Icons.message),
-          label: const Text('Contact Landlord'),
+          label: const Text('Contact Owner'),
           style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.primary,
             foregroundColor: Colors.white,
@@ -310,7 +308,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ChatScreen(landlord: widget.room.landlord),
+              builder: (context) => ChatScreen(landlord: widget.owner),
             ),
           ),
         ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1528689830",
+    "project_id": "rent-connect-98e3e",
+    "storage_bucket": "rent-connect-98e3e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1528689830:android:3ab9a728a7685cc80c7067",
+        "android_client_info": {
+          "package_name": "com.campany.rent_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC82DZjJrRTOo5qDt51rMCLb7oV_QedbXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

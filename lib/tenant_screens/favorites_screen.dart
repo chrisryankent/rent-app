@@ -1,12 +1,11 @@
 // TODO Implement this library.
 // favorites_screen.dart
 import 'package:flutter/material.dart';
-import 'room_detail_screen.dart';
-import 'models/room.dart';
-import 'widgets/room_card.dart';
+import '../models/property.dart';
+import '../widgets/property_card.dart';
 
 class FavoritesScreen extends StatelessWidget {
-  final List<Room> favorites;
+  final List<Property> favorites;
 
   const FavoritesScreen({super.key, required this.favorites});
 
@@ -69,23 +68,17 @@ class FavoritesScreen extends StatelessWidget {
                           childAspectRatio: 0.75,
                         ),
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      final room = favorites[index];
-                      return RoomCard(
-                        room: room,
+                      final property = favorites[index];
+                      return PropertyCard(
+                        property: property,
                         isFavorite: true,
                         onFavorite: () {},
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RoomDetailScreen(
-                              room: room,
-                              onFavorite: () {},
-                              isFavorite: true,
-                            ),
-                          ),
-                        ),
+                        onTap: () {
+                          // TODO: Navigate to property detail screen
+                        },
                         isNew: true,
                         isRecommended: true,
+                        isFeatured: false,
                       );
                     }, childCount: favorites.length),
                   ),

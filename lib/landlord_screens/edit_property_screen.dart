@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models/property.dart';
+import '../models/property.dart';
 import 'property_upload_form.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_connect/theme_provider.dart';

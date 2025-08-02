@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'models/property.dart';
+import '../models/property.dart';
 
 class PropertyDetailScreen extends StatelessWidget {
   final Property property;
@@ -47,10 +47,7 @@ class PropertyDetailScreen extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.6),
-                Colors.transparent,
-              ],
+              colors: [Colors.black.withOpacity(0.6), Colors.transparent],
             ),
           ),
         ),
@@ -69,7 +66,9 @@ class PropertyDetailScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   PageView.builder(
-                    itemCount: property.photos?.isNotEmpty == true ? property.photos!.length : 1,
+                    itemCount: property.photos?.isNotEmpty == true
+                        ? property.photos!.length
+                        : 1,
                     itemBuilder: (context, index) => Image.asset(
                       property.photos?.isNotEmpty == true
                           ? property.photos![index]
@@ -96,7 +95,10 @@ class PropertyDetailScreen extends StatelessWidget {
                     top: 80,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: property.status.color.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(20),
@@ -115,7 +117,10 @@ class PropertyDetailScreen extends StatelessWidget {
                     bottom: 16,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(20),
@@ -139,7 +144,10 @@ class PropertyDetailScreen extends StatelessWidget {
             delegate: SliverChildListDelegate([
               Container(
                 color: backgroundColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -166,13 +174,19 @@ class PropertyDetailScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Iconsax.location, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                        Icon(
+                          Iconsax.location,
+                          size: 18,
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             property.address,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.8),
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.8,
+                              ),
                             ),
                           ),
                         ),
@@ -181,7 +195,11 @@ class PropertyDetailScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildQuickStats(theme),
                     const SizedBox(height: 32),
-                    _buildSectionHeader(theme, Iconsax.document_text, 'Description'),
+                    _buildSectionHeader(
+                      theme,
+                      Iconsax.document_text,
+                      'Description',
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       property.neighborhoodDesc ?? '',
@@ -199,22 +217,35 @@ class PropertyDetailScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildAmenitiesList(theme),
                     const SizedBox(height: 32),
-                    _buildSectionHeader(theme, Iconsax.document, 'Lease & Terms'),
+                    _buildSectionHeader(
+                      theme,
+                      Iconsax.document,
+                      'Lease & Terms',
+                    ),
                     const SizedBox(height: 16),
                     _buildLeaseTerms(theme),
                     const SizedBox(height: 32),
                     _buildSectionHeader(theme, Iconsax.buildings, 'Community'),
                     const SizedBox(height: 16),
                     _buildCommunityFeatures(theme),
-                    if (property.specialFeatures != null && property.specialFeatures!.isNotEmpty || 
+                    if (property.specialFeatures != null &&
+                            property.specialFeatures!.isNotEmpty ||
                         (property.usp != null && property.usp!.isNotEmpty)) ...[
                       const SizedBox(height: 32),
-                      _buildSectionHeader(theme, Iconsax.flash, 'Special Features'),
+                      _buildSectionHeader(
+                        theme,
+                        Iconsax.flash,
+                        'Special Features',
+                      ),
                       const SizedBox(height: 16),
                       _buildSpecialFeatures(theme),
                     ],
                     const SizedBox(height: 32),
-                    _buildSectionHeader(theme, Iconsax.info_circle, 'Detailed Information'),
+                    _buildSectionHeader(
+                      theme,
+                      Iconsax.info_circle,
+                      'Detailed Information',
+                    ),
                     const SizedBox(height: 16),
                     _buildDetailedInfo(theme),
                     const SizedBox(height: 40),
@@ -229,7 +260,9 @@ class PropertyDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
           color: theme.cardColor,
-          border: Border(top: BorderSide(color: theme.dividerColor.withOpacity(0.1))),
+          border: Border(
+            top: BorderSide(color: theme.dividerColor.withOpacity(0.1)),
+          ),
         ),
         child: Row(
           children: [
@@ -284,10 +317,26 @@ class PropertyDetailScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _statItem(theme, Iconsax.ruler, '${property.squareFootage?.toStringAsFixed(0)} sqft'),
-            _statItem(theme, Iconsax.battery_charging, '${property.bedrooms} Beds'),
-            _statItem(theme, Iconsax.back_square, '${property.bathrooms} Baths'),
-            _statItem(theme, Iconsax.buildings, property.propertyTypes.map((e) => e.name).join(', ')),
+            _statItem(
+              theme,
+              Iconsax.ruler,
+              '${property.squareFootage?.toStringAsFixed(0)} sqft',
+            ),
+            _statItem(
+              theme,
+              Iconsax.battery_charging,
+              '${property.bedrooms} Beds',
+            ),
+            _statItem(
+              theme,
+              Iconsax.back_square,
+              '${property.bathrooms} Baths',
+            ),
+            _statItem(
+              theme,
+              Iconsax.buildings,
+              property.propertyTypes.map((e) => e.name).join(', '),
+            ),
           ],
         ),
       ),
@@ -326,11 +375,14 @@ class PropertyDetailScreen extends StatelessWidget {
 
   Widget _buildFeaturesGrid(ThemeData theme) {
     final features = [
-      _FeatureItem('Furnishing', property.furnishingStatus?.name ?? 'Not specified'),
+      _FeatureItem(
+        'Furnishing',
+        property.furnishingStatus?.name ?? 'Not specified',
+      ),
       _FeatureItem('Heating', property.heatingType?.name ?? 'Not specified'),
       _FeatureItem('Cooling', property.coolingType?.name ?? 'Not specified'),
       _FeatureItem('Parking', property.parking ?? 'Not specified'),
-      _FeatureItem('Laundry', property.laundryFacilities ?? 'Not specified'),
+      _FeatureItem('Laundry', property.laundryFacilities?.toString() ?? 'Not specified'),
       _FeatureItem('Pets', property.petPolicy ?? 'Not specified'),
     ];
 
@@ -378,12 +430,14 @@ class PropertyDetailScreen extends StatelessWidget {
 
   Widget _buildAmenitiesList(ThemeData theme) {
     final amenities = [
-      if (property.kitchenAppliances != null) 
-        ...property.kitchenAppliances!.map((e) => _AmenityItem(e, Icons.kitchen)),
+      if (property.kitchenAppliances != null)
+        ...property.kitchenAppliances!.map(
+          (e) => _AmenityItem(e, Icons.kitchen),
+        ),
       if (property.accessibilityFeatures != null)
-        ...property.accessibilityFeatures!.map((e) => _AmenityItem(e, Icons.accessibility)),
-      if (property.utilitiesIncluded != null)
-        ...property.utilitiesIncluded!.map((e) => _AmenityItem(e, Icons.electrical_services)),
+        ...property.accessibilityFeatures!.map(
+          (e) => _AmenityItem(e, Icons.accessibility),
+        ),
     ];
 
     return amenities.isEmpty
@@ -397,14 +451,16 @@ class PropertyDetailScreen extends StatelessWidget {
             spacing: 12,
             runSpacing: 12,
             children: amenities
-                .map((item) => Chip(
-                      label: Text(item.label),
-                      avatar: Icon(item.icon, size: 16),
-                      backgroundColor: theme.cardColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ))
+                .map(
+                  (item) => Chip(
+                    label: Text(item.label),
+                    avatar: Icon(item.icon, size: 16),
+                    backgroundColor: theme.cardColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                )
                 .toList(),
           );
   }
@@ -412,50 +468,69 @@ class PropertyDetailScreen extends StatelessWidget {
   Widget _buildLeaseTerms(ThemeData theme) {
     final terms = [
       _TermItem('Lease Type', property.leaseType?.name ?? 'Not specified'),
-      _TermItem('Security Deposit', property.securityDeposit != null ? '\u0024${property.securityDeposit.toStringAsFixed(0)}' : 'Not specified'),
-      _TermItem('Minimum Lease', property.minLeaseMonths != null ? '${property.minLeaseMonths} months' : 'Not specified'),
-      _TermItem('Application Requirements', property.applicationRequirements?.join(', ') ?? 'Not specified'),
+      _TermItem(
+        'Security Deposit',
+        property.securityDeposit != null
+            ? '\u0024${property.securityDeposit?.toStringAsFixed(0)}'
+            : 'Not specified',
+      ),
+      _TermItem(
+        'Minimum Lease',
+        property.minLeaseMonths != null
+            ? '${property.minLeaseMonths} months'
+            : 'Not specified',
+      ),
+      _TermItem(
+        'Application Requirements',
+        property.applicationRequirements?.join(', ') ?? 'Not specified',
+      ),
       _TermItem('Smoking Policy', property.smokingPolicy ?? 'Not specified'),
       _TermItem('Guest Policy', property.guestPolicy ?? 'Not specified'),
     ];
 
     return Column(
       children: terms
-          .map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        item.label,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
-                        ),
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      item.label,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        item.value,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ))
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(item.value, style: theme.textTheme.bodyMedium),
+                  ),
+                ],
+              ),
+            ),
+          )
           .toList(),
     );
   }
 
   Widget _buildCommunityFeatures(ThemeData theme) {
     final features = [
-      if (property.communityFeatures != null && property.communityFeatures!.isNotEmpty)
-        _CommunityItem('Community Features', property.communityFeatures!.join(', ')),
-      if (property.parks != null && property.parks!.isNotEmpty) _CommunityItem('Parks', property.parks!.join(', ')),
-      if (property.restaurants != null && property.restaurants!.isNotEmpty) _CommunityItem('Restaurants', property.restaurants!.join(', ')),
-      if (property.groceries != null && property.groceries!.isNotEmpty) _CommunityItem('Groceries', property.groceries!.join(', ')),
+      if (property.communityFeatures != null &&
+          property.communityFeatures!.isNotEmpty)
+        _CommunityItem(
+          'Community Features',
+          property.communityFeatures!.join(', '),
+        ),
+      if (property.parks != null && property.parks!.isNotEmpty)
+        _CommunityItem('Parks', property.parks!.join(', ')),
+      if (property.restaurants != null && property.restaurants!.isNotEmpty)
+        _CommunityItem('Restaurants', property.restaurants!.join(', ')),
+      if (property.groceries != null && property.groceries!.isNotEmpty)
+        _CommunityItem('Groceries', property.groceries!.join(', ')),
     ];
 
     return features.isEmpty
@@ -467,25 +542,24 @@ class PropertyDetailScreen extends StatelessWidget {
           )
         : Column(
             children: features
-                .map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.label,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.label,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            item.value,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ))
+                        ),
+                        const SizedBox(height: 4),
+                        Text(item.value, style: theme.textTheme.bodyMedium),
+                      ],
+                    ),
+                  ),
+                )
                 .toList(),
           );
   }
@@ -494,15 +568,18 @@ class PropertyDetailScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (property.specialFeatures != null && property.specialFeatures!.isNotEmpty)
+        if (property.specialFeatures != null &&
+            property.specialFeatures!.isNotEmpty)
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: property.specialFeatures!
-                .map((feature) => Chip(
-                      label: Text(feature),
-                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                    ))
+                .map(
+                  (feature) => Chip(
+                    label: Text(feature),
+                    backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                  ),
+                )
                 .toList(),
           ),
         if (property.usp != null && property.usp!.isNotEmpty) ...[
@@ -514,10 +591,7 @@ class PropertyDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            property.usp!,
-            style: theme.textTheme.bodyLarge,
-          ),
+          Text(property.usp!, style: theme.textTheme.bodyLarge),
         ],
       ],
     );
@@ -530,35 +604,62 @@ class PropertyDetailScreen extends StatelessWidget {
         items: [
           _DetailItem('Contact Name', property.contactName ?? 'Not specified'),
           _DetailItem('Contact Role', property.contactRole ?? 'Not specified'),
-          _DetailItem('Contact Method', property.contactMethod ?? 'Not specified'),
-          _DetailItem('Showing Schedule', property.showingSchedule ?? 'Not specified'),
+          _DetailItem(
+            'Contact Method',
+            property.contactMethod ?? 'Not specified',
+          ),
+          _DetailItem(
+            'Showing Schedule',
+            property.showingSchedule ?? 'Not specified',
+          ),
         ],
       ),
       _DetailCategory(
         title: 'Building Information',
         items: [
-          _DetailItem('Floor Level', property.floorLevel?.toString() ?? 'Not specified'),
-          _DetailItem('Total Floors', property.totalFloors?.toString() ?? 'Not specified'),
-          _DetailItem('Available Date', property.availableDate.toLocal().toString().split(' ')[0]),
+          _DetailItem(
+            'Floor Level',
+            property.floorLevel?.toString() ?? 'Not specified',
+          ),
+          _DetailItem(
+            'Total Floors',
+            property.totalFloors?.toString() ?? 'Not specified',
+          ),
+          _DetailItem(
+            'Available Date',
+            property.availableDate?.toLocal().toString().split(' ')[0] ??
+                'Not specified',
+          ),
         ],
       ),
       _DetailCategory(
         title: 'Certifications',
         items: [
-          _DetailItem('Safety Certifications', property.safetyCertifications?.join(', ') ?? 'Not specified'),
-          _DetailItem('Building Permits', property.buildingPermits?.join(', ') ?? 'Not specified'),
-          _DetailItem('Rental License #', property.rentalLicenseNumber ?? 'Not specified'),
-          _DetailItem('Energy Rating', property.energyRating ?? 'Not specified'),
+          _DetailItem(
+            'Safety Certifications',
+            property.safetyCertifications?.join(', ') ?? 'Not specified',
+          ),
+          _DetailItem(
+            'Building Permits',
+            property.buildingPermits?.join(', ') ?? 'Not specified',
+          ),
+          _DetailItem(
+            'Rental License #',
+            property.rentalLicenseNumber ?? 'Not specified',
+          ),
+          _DetailItem(
+            'Energy Rating',
+            property.energyRating ?? 'Not specified',
+          ),
         ],
       ),
     ];
 
     return Column(
       children: details
-          .map((category) => _DetailCategoryCard(
-                theme: theme,
-                category: category,
-              ))
+          .map(
+            (category) => _DetailCategoryCard(theme: theme, category: category),
+          )
           .toList(),
     );
   }
@@ -610,10 +711,7 @@ class _DetailCategoryCard extends StatelessWidget {
   final ThemeData theme;
   final _DetailCategory category;
 
-  const _DetailCategoryCard({
-    required this.theme,
-    required this.category,
-  });
+  const _DetailCategoryCard({required this.theme, required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -632,18 +730,17 @@ class _DetailCategoryCard extends StatelessWidget {
           ),
         ),
         children: [
-          ...category.items.map((item) => ListTile(
-                title: Text(
-                  item.label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
-                  ),
+          ...category.items.map(
+            (item) => ListTile(
+              title: Text(
+                item.label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
                 ),
-                subtitle: Text(
-                  item.value,
-                  style: theme.textTheme.bodyMedium,
-                ),
-              )),
+              ),
+              subtitle: Text(item.value, style: theme.textTheme.bodyMedium),
+            ),
+          ),
         ],
       ),
     );
