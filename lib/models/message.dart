@@ -1,5 +1,4 @@
 // models/message.dart
-import 'package:rental_connect/models/user.dart';
 
 enum MessageStatus { sent, delivered, read }
 

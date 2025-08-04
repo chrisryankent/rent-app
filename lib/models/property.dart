@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Property model for unified app
 
@@ -110,6 +111,9 @@ class Property {
   final List<String>? renovations;
   final List<String>? specialFeatures;
   final String? usp;
+  final bool? isNew;
+  final bool? isRecommended;
+  final bool? isFeatured;
 
   Property({
     required this.id,
@@ -167,6 +171,9 @@ class Property {
     this.renovations,
     this.specialFeatures,
     this.usp,
+    this.isNew,
+    this.isRecommended,
+    this.isFeatured,
   });
 
   String get timeAgo {
@@ -181,6 +188,108 @@ class Property {
     } else {
       return 'Just now';
     }
+  }
+
+  factory Property.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Property(
+      id: doc.id,
+      ownerId: data['ownerId'] ?? '',
+      createdAt: (data['createdAt'] is Timestamp)
+          ? (data['createdAt'] as Timestamp).toDate()
+          : DateTime.tryParse(data['createdAt'] ?? '') ?? DateTime.now(),
+      status: PropertyStatus.values.firstWhere(
+        (e) => e.name == (data['status'] ?? 'active'),
+        orElse: () => PropertyStatus.active,
+      ),
+      title: data['title'] ?? '',
+      propertyTypes:
+          (data['propertyTypes'] as List?)?.map((e) {
+            return PropertyType.values.firstWhere(
+              (t) => t.name == e,
+              orElse: () => PropertyType.other,
+            );
+          }).toList() ??
+          [PropertyType.other],
+      rentAmount: (data['rentAmount'] is int)
+          ? (data['rentAmount'] as int).toDouble()
+          : (data['rentAmount'] ?? 0.0),
+      address: data['address'] ?? '',
+      description: data['description'] ?? '',
+      securityDeposit: (data['securityDeposit'] as num?)?.toDouble(),
+      availableDate: (data['availableDate'] is Timestamp)
+          ? (data['availableDate'] as Timestamp).toDate()
+          : null,
+      bedrooms: data['bedrooms'],
+      bathrooms: data['bathrooms'],
+      squareFootage: (data['squareFootage'] as num?)?.toDouble(),
+      furnishingStatus: data['furnishingStatus'] != null
+          ? FurnishingStatus.values.firstWhere(
+              (e) => e.name == data['furnishingStatus'],
+              orElse: () => FurnishingStatus.unfurnished,
+            )
+          : null,
+      floorLevel: data['floorLevel'],
+      totalFloors: data['totalFloors'],
+      heatingType: data['heatingType'] != null
+          ? HeatingType.values.firstWhere(
+              (e) => e.name == data['heatingType'],
+              orElse: () => HeatingType.none,
+            )
+          : null,
+      coolingType: data['coolingType'] != null
+          ? CoolingType.values.firstWhere(
+              (e) => e.name == data['coolingType'],
+              orElse: () => CoolingType.none,
+            )
+          : null,
+      kitchenAppliances: (data['kitchenAppliances'] as List?)?.cast<String>(),
+      images: (data['images'] as List?)?.cast<String>(),
+      amenities: (data['amenities'] as List?)?.cast<String>(),
+      laundryFacilities: (data['laundryFacilities'] as List?)?.cast<String>(),
+      parking: data['parking'],
+      petPolicy: data['petPolicy'],
+      accessibilityFeatures: (data['accessibilityFeatures'] as List?)
+          ?.cast<String>(),
+      neighborhoodDesc: data['neighborhoodDesc'],
+      transportationAccess: data['transportationAccess'],
+      photos: (data['photos'] as List?)?.cast<String>(),
+      virtualTourUrl: data['virtualTourUrl'],
+      videoWalkthrough: data['videoWalkthrough'],
+      minLeaseMonths: data['minLeaseMonths'],
+      leaseType: data['leaseType'] != null
+          ? LeaseType.values.firstWhere(
+              (e) => e.name == data['leaseType'],
+              orElse: () => LeaseType.monthToMonth,
+            )
+          : null,
+      applicationRequirements: (data['applicationRequirements'] as List?)
+          ?.cast<String>(),
+      smokingPolicy: data['smokingPolicy'],
+      guestPolicy: data['guestPolicy'],
+      noiseRestrictions: data['noiseRestrictions'],
+      maintenanceResponsibilities: data['maintenanceResponsibilities'],
+      sublettingPolicy: data['sublettingPolicy'],
+      contactMethod: data['contactMethod'],
+      showingSchedule: data['showingSchedule'],
+      contactName: data['contactName'],
+      contactRole: data['contactRole'],
+      safetyCertifications: (data['safetyCertifications'] as List?)
+          ?.cast<String>(),
+      buildingPermits: (data['buildingPermits'] as List?)?.cast<String>(),
+      rentalLicenseNumber: data['rentalLicenseNumber'],
+      energyRating: data['energyRating'],
+      parks: (data['parks'] as List?)?.cast<String>(),
+      restaurants: (data['restaurants'] as List?)?.cast<String>(),
+      groceries: (data['groceries'] as List?)?.cast<String>(),
+      communityFeatures: (data['communityFeatures'] as List?)?.cast<String>(),
+      renovations: (data['renovations'] as List?)?.cast<String>(),
+      specialFeatures: (data['specialFeatures'] as List?)?.cast<String>(),
+      usp: data['usp'],
+      isNew: data['isNew'] ?? false,
+      isRecommended: data['isRecommended'] ?? false,
+      isFeatured: data['isFeatured'] ?? false,
+    );
   }
 
   static List<Property> get sampleData => [

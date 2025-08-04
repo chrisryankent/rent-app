@@ -3,15 +3,57 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_connect/login_screen.dart';
 import 'package:rental_connect/theme_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  Map<String, dynamic>? userData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    setState(() {
+      userData = doc.data();
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.themeMode == ThemeMode.dark;
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (userData == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('My Profile')),
+        body: const Center(child: Text('No user data found.')),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -71,19 +113,18 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Michael Chen',
-                              style: TextStyle(
+                            Text(
+                              userData?['name'] ?? '',
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'michael@example.com',
+                              userData?['email'] ?? '',
                               style: TextStyle(
-                                color: theme.textTheme.bodySmall?.color
-                                    ?.withOpacity(0.7),
+                                color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -93,8 +134,7 @@ class ProfileScreen extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
                                 side: BorderSide(color: theme.colorScheme.primary),
                               ),
                               child: Text(

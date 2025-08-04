@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:rental_connect/models/user.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../models/message.dart';
+import '../models/property.dart';
 
 class ChatScreen extends StatefulWidget {
   final User landlord;
+  final Property property;
 
-  const ChatScreen({super.key, required this.landlord});
+  const ChatScreen({super.key, required this.landlord, required this.property});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -156,7 +158,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.asset(
-                    'lib/assets/property1.jpg',
+                    widget.property.images != null &&
+                            widget.property.images!.isNotEmpty
+                        ? widget.property.images![0]
+                        : 'lib/assets/property1.jpg',
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
@@ -168,14 +173,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Modern Downtown Studio',
+                        widget.property.title,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '\$1,250/month',
+                        '\$${widget.property.rentAmount}/mo',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
@@ -277,7 +282,9 @@ class _ChatScreenState extends State<ChatScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: isSent ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isSent
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
           if (!isSent && !isSystem)
             const CircleAvatar(
@@ -759,9 +766,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (await launcher.launchUrl(uri)) {
       // success
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not launch dialer')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not launch dialer')));
     }
   }
 }

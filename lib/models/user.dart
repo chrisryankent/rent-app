@@ -1,4 +1,6 @@
 // models/user.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum UserType { tenant, owner }
 
 class User {
@@ -17,4 +19,19 @@ class User {
     required this.type,
     this.isVerified = false,
   });
+
+  factory User.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return User(
+      id: doc.id,
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      phone: data['phone'] ?? '',
+      type: UserType.values.firstWhere(
+        (e) => e.name == (data['type'] ?? 'tenant'),
+        orElse: () => UserType.tenant,
+      ),
+      isVerified: data['isVerified'] ?? false,
+    );
+  }
 }

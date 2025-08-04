@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:rental_connect/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rental_connect/tenant_screens/bottom_navbar.dart';
+import 'package:rental_connect/landlord_screens/landlord_bottom_navbar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,15 +30,17 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize rotating particles
     for (int i = 0; i < _particleCount; i++) {
-      _particles.add(Particle(
-        color: _getRandomColor(),
-        radius: Random().nextDouble() * 6 + 4,
-        angle: 2 * pi * i / _particleCount,
-        distance: Random().nextDouble() * 150 + 100,
-      ));
+      _particles.add(
+        Particle(
+          color: _getRandomColor(),
+          radius: Random().nextDouble() * 6 + 4,
+          angle: 2 * pi * i / _particleCount,
+          distance: Random().nextDouble() * 150 + 100,
+        ),
+      );
     }
 
     _controller = AnimationController(
@@ -44,6 +50,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Start animation sequence
     _startAnimationSequence();
+
+    // Check last session for auto-login
+    _checkLastSession();
   }
 
   void _startAnimationSequence() {
@@ -52,7 +61,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Phase 2: Convergence (4-6s)
     Future.delayed(const Duration(seconds: 4), () {
-      if (mounted) _controller.animateTo(0.6, duration: const Duration(seconds: 2));
+      if (mounted) {
+        _controller.animateTo(0.6, duration: const Duration(seconds: 2));
+      }
     });
 
     // Phase 3: Logo reveal (6-7s)
@@ -86,19 +97,65 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
+  Future<void> _checkLastSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastUserId = prefs.getString('lastUserId');
+    if (lastUserId != null) {
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(lastUserId)
+            .get();
+        if (userDoc.exists) {
+          final userType = userDoc['type'] ?? 'tenant';
+          if (userType == 'landlord' || userType == 'owner') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LandlordBottomNavBar(
+                  currentIndex: 0,
+                  onTap: (index) {},
+                  onCreate: () {},
+                ),
+              ),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainApp()),
+            );
+          }
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
+      } catch (e) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    }
+    // else, continue splash animation and go to login after
+  }
+
   void _initExplosionParticles() {
     _explosionParticles.clear();
     final screenSize = MediaQuery.of(context).size;
     final center = Offset(screenSize.width / 2, screenSize.height / 2);
-    
+
     for (int i = 0; i < _explosionCount; i++) {
-      _explosionParticles.add(ExplosionParticle(
-        color: _getRandomColor(),
-        radius: Random().nextDouble() * 6 + 3,
-        center: center,
-        angle: 2 * pi * Random().nextDouble(),
-        distance: Random().nextDouble() * 300 + 150,
-      ));
+      _explosionParticles.add(
+        ExplosionParticle(
+          color: _getRandomColor(),
+          radius: Random().nextDouble() * 6 + 3,
+          center: center,
+          angle: 2 * pi * Random().nextDouble(),
+          distance: Random().nextDouble() * 300 + 150,
+        ),
+      );
     }
   }
 
@@ -116,12 +173,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToNextScreen() {
     if (_navigationTimer?.isActive ?? false) return;
-    
     _navigationTimer = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainApp()),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       }
     });
@@ -146,7 +202,7 @@ class _SplashScreenState extends State<SplashScreen>
         particle.update(progress, center);
       }
     }
-    
+
     if (_explosionTriggered) {
       for (final particle in _explosionParticles) {
         particle.update((progress - 0.7) / 0.3);
@@ -159,10 +215,7 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: RadialGradient(
             center: Alignment.center,
             radius: 1.5,
-            colors: const [
-              Color(0xFF0A0E21),
-              Color(0xFF1D2671),
-            ],
+            colors: const [Color(0xFF0A0E21), Color(0xFF1D2671)],
             stops: const [0.3, 1.0],
           ),
         ),
@@ -193,7 +246,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-            
+
             // Explosion particles (final phase)
             if (_explosionTriggered)
               for (final particle in _explosionParticles)
@@ -219,7 +272,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-            
+
             // RoomFinder Text
             if (_showText)
               Center(
@@ -235,12 +288,12 @@ class _SplashScreenState extends State<SplashScreen>
                         fontWeight: FontWeight.w900,
                         fontFamily: 'PlayfairDisplay',
                         foreground: Paint()
-                          ..shader = const LinearGradient(
-                            colors: [
-                              Color(0xFFf6d365),
-                              Color(0xFFfda085),
-                            ],
-                          ).createShader(const Rect.fromLTWH(0.0, 0.0, 300.0, 100.0)),
+                          ..shader =
+                              const LinearGradient(
+                                colors: [Color(0xFFf6d365), Color(0xFFfda085)],
+                              ).createShader(
+                                const Rect.fromLTWH(0.0, 0.0, 300.0, 100.0),
+                              ),
                         shadows: [
                           Shadow(
                             color: Colors.black.withOpacity(0.5),
@@ -254,7 +307,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
               ),
-            
+
             // Luxury tagline
             if (_showTagline)
               Positioned(
@@ -277,7 +330,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
               ),
-            
+
             // Luxury icons
             Positioned(
               top: 100,
@@ -338,7 +391,7 @@ class Particle {
 
   void update(double progress, Offset center) {
     final phase = progress * 10;
-    
+
     if (progress < 0.4) {
       // Rotation phase
       final currentDistance = startDistance * (1 - progress * 2.5);

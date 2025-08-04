@@ -1,10 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
 import '../models/property.dart';
 import 'upload_form_steps.dart' hide PropertyType;
-import 'package:provider/provider.dart';
-import '../theme_provider.dart';
 
 class PropertyUploadForm extends StatefulWidget {
   final void Function(Property) onSubmit;
@@ -56,15 +56,21 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
       _isUploading = true;
       _uploadProgress = 0.0;
     });
-
     for (int i = 0; i <= 100; i += 10) {
       await Future.delayed(const Duration(milliseconds: 200));
       setState(() => _uploadProgress = i / 100.0);
     }
-
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() => _isUploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must be logged in to upload.')),
+      );
+      return;
+    }
     final property = Property(
       id: '',
-      ownerId: '',
+      ownerId: user.uid,
       createdAt: DateTime.now(),
       status: PropertyStatus.pending,
       title: _formData['title'] ?? '',
@@ -133,8 +139,58 @@ class _PropertyUploadFormState extends State<PropertyUploadForm> {
       specialFeatures: _formData['specialFeatures'],
       usp: _formData['usp'],
     );
+    // Write to Firestore (no image/video storage)
+    await FirebaseFirestore.instance.collection('properties').add({
+      'ownerId': property.ownerId,
+      'createdAt': FieldValue.serverTimestamp(),
+      'status': property.status.name,
+      'title': property.title,
+      'propertyTypes': property.propertyTypes.map((e) => e.name).toList(),
+      'rentAmount': property.rentAmount,
+      'address': property.address,
+      'description': property.description,
+      'securityDeposit': property.securityDeposit,
+      'availableDate': property.availableDate,
+      'bedrooms': property.bedrooms,
+      'bathrooms': property.bathrooms,
+      'squareFootage': property.squareFootage,
+      'furnishingStatus': property.furnishingStatus,
+      'floorLevel': property.floorLevel,
+      'totalFloors': property.totalFloors,
+      'heatingType': property.heatingType,
+      'coolingType': property.coolingType,
+      'kitchenAppliances': property.kitchenAppliances,
+      'laundryFacilities': property.laundryFacilities,
+      'parking': property.parking,
+      'petPolicy': property.petPolicy,
+      'accessibilityFeatures': property.accessibilityFeatures,
+      'neighborhoodDesc': property.neighborhoodDesc,
+      'transportationAccess': property.transportationAccess,
+      'minLeaseMonths': property.minLeaseMonths,
+      'leaseType': property.leaseType,
+      'applicationRequirements': property.applicationRequirements,
+      'smokingPolicy': property.smokingPolicy,
+      'guestPolicy': property.guestPolicy,
+      'noiseRestrictions': property.noiseRestrictions,
+      'maintenanceResponsibilities': property.maintenanceResponsibilities,
+      'sublettingPolicy': property.sublettingPolicy,
+      'contactMethod': property.contactMethod,
+      'showingSchedule': property.showingSchedule,
+      'contactName': property.contactName,
+      'contactRole': property.contactRole,
+      'safetyCertifications': property.safetyCertifications,
+      'buildingPermits': property.buildingPermits,
+      'rentalLicenseNumber': property.rentalLicenseNumber,
+      'energyRating': property.energyRating,
+      'parks': property.parks,
+      'restaurants': property.restaurants,
+      'groceries': property.groceries,
+      'communityFeatures': property.communityFeatures,
+      'renovations': property.renovations,
+      'specialFeatures': property.specialFeatures,
+      'usp': property.usp,
+    });
     widget.onSubmit(property);
-
     setState(() => _isUploading = false);
   }
 

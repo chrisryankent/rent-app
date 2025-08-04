@@ -3,6 +3,7 @@ import '../models/property.dart';
 import 'property_upload_form.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_connect/theme_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditPropertyScreen extends StatelessWidget {
   final Property property;
@@ -12,6 +13,32 @@ class EditPropertyScreen extends StatelessWidget {
     required this.property,
     required this.onSave,
   });
+
+  Future<void> _updatePropertyInFirestore(
+    BuildContext context,
+    Property updated,
+  ) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('properties')
+          .doc(updated.id)
+          .update({
+            'title': updated.title,
+            'address': updated.address,
+            'description': updated.description,
+            'rentAmount': updated.rentAmount,
+            'status': updated.status.name,
+            'propertyTypes': updated.propertyTypes.map((e) => e.name).toList(),
+            // ...add all other fields except images/videos...
+          });
+      onSave(updated);
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update property: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +63,10 @@ class EditPropertyScreen extends StatelessWidget {
             body: Container(
               color: theme.scaffoldBackgroundColor,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 24,
+                ),
                 child: Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -46,8 +76,7 @@ class EditPropertyScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: PropertyUploadForm(
                       onSubmit: (updated) {
-                        onSave(updated);
-                        Navigator.pop(context);
+                        _updatePropertyInFirestore(context, updated);
                       },
                       initialProperty: property,
                     ),

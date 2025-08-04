@@ -66,7 +66,7 @@ class _MainAppState extends State<MainApp> {
         favorites: _favorites,
         onToggleFavorite: _toggleFavorite,
       ),
-      FavoritesScreen(favorites: _favorites),
+      const FavoritesScreen(),
       MessagesScreen(),
       ProfileScreen(),
     ];
@@ -119,7 +119,8 @@ class _CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: (theme.bottomAppBarTheme.color ?? theme.colorScheme.surface).withOpacity(0.95),
+      color: (theme.bottomAppBarTheme.color ?? theme.colorScheme.surface)
+          .withOpacity(0.95),
       elevation: 8,
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(18),
@@ -229,7 +230,9 @@ class _NavBarIcon extends StatelessWidget {
                 selected ? activeIcon : icon,
                 key: ValueKey(selected),
                 size: 18,
-                color: selected ? theme.colorScheme.primary : Colors.grey.shade500,
+                color: selected
+                    ? theme.colorScheme.primary
+                    : Colors.grey.shade500,
               ),
             ),
             const SizedBox(height: 1),
@@ -238,7 +241,9 @@ class _NavBarIcon extends StatelessWidget {
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                color: selected ? theme.colorScheme.primary : Colors.grey.shade500,
+                color: selected
+                    ? theme.colorScheme.primary
+                    : Colors.grey.shade500,
               ),
               child: Text(label),
             ),

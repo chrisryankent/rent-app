@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'compare_screen.dart';
 import '../models/property.dart';
@@ -23,26 +24,100 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final List<Property> _properties = Property.sampleData;
-  final List<String> _recentSearches = [
-    'Downtown',
-    'Near University',
-    'Pet Friendly',
-    'Studio',
-  ];
+  List<Property> _allProperties = [];
+  List<Property> _filteredProperties = [];
+  Set<String> _favoriteIds = {};
+  List<String> _recentSearches = [];
   bool _showMapView = false;
-  double _priceRange = 2000;
+  double _priceRange = 5000;
   String _selectedCategory = 'All';
   bool _showRecent = false;
   bool _isRefreshing = false;
+  bool _isLoading = true;
+  String _searchQuery = '';
 
-  void _toggleFavorite(Property property) {
-    widget.onToggleFavorite(property);
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+    _loadRecentSearches();
+    _fetchProperties();
   }
 
-  void _toggleView() {
+  Future<void> _loadFavorites() async {
+    // TODO: Replace with persistent storage if needed
     setState(() {
-      _showMapView = !_showMapView;
+      _favoriteIds = widget.favorites.map((p) => p.id).toSet();
+    });
+  }
+
+  Future<void> _loadRecentSearches() async {
+    // TODO: Replace with persistent storage if needed
+    setState(() {
+      _recentSearches = [];
+    });
+  }
+
+  Future<void> _fetchProperties() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('properties')
+          .get();
+      _allProperties = snapshot.docs
+          .map((doc) => Property.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      _allProperties = [];
+    }
+    _applyFilters();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _applyFilters() {
+    List<Property> props = List.from(_allProperties);
+    // Search filter
+    if (_searchQuery.isNotEmpty) {
+      props = props
+          .where(
+            (p) =>
+                p.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                p.address.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
+    }
+    // Category filter
+    if (_selectedCategory != 'All') {
+      props = props
+          .where(
+            (p) => p.propertyTypes.any(
+              (t) => t.name.toLowerCase().contains(
+                _selectedCategory.toLowerCase(),
+              ),
+            ),
+          )
+          .toList();
+    }
+    // Price filter
+    props = props.where((p) => p.rentAmount <= _priceRange).toList();
+    // Sort newest to oldest
+    props.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    setState(() {
+      _filteredProperties = props;
+    });
+  }
+
+  void _toggleFavorite(Property property) {
+    setState(() {
+      if (_favoriteIds.contains(property.id)) {
+        _favoriteIds.remove(property.id);
+      } else {
+        _favoriteIds.add(property.id);
+      }
     });
   }
 
@@ -55,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _recentSearches.removeLast();
       }
     });
+    // TODO: Persist recent searches if needed
   }
 
   void _onSearchTap() {
@@ -66,66 +142,61 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onSearchSubmit(String value) {
     _addRecentSearch(value);
     setState(() {
+      _searchQuery = value;
       _showRecent = false;
     });
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SearchScreen(initialQuery: value),
-      ),
-    );
+    _applyFilters();
   }
 
-  Future<void> _onVoiceSearch() async {
-    final voiceResult = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Voice Search'),
-        content: const Text('Pretend you spoke: "Downtown"'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Downtown'),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    if (voiceResult != null && voiceResult.isNotEmpty) {
-      _searchController.text = voiceResult;
-      _onSearchSubmit(voiceResult);
-    }
+  void _onCategorySelected(String category) {
+    setState(() {
+      _selectedCategory = category;
+    });
+    _applyFilters();
   }
 
-  void _goToDeals() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const DealsScreen()),
-    );
-  }
-
-  void _goToTopPicks() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const TopPicksScreen()),
-    );
+  void _onPriceChanged(double value) {
+    setState(() {
+      _priceRange = value;
+    });
+    _applyFilters();
   }
 
   void _refreshProperties() async {
     setState(() {
       _isRefreshing = true;
     });
-    await Future.delayed(const Duration(seconds: 1));
+    await _fetchProperties();
     setState(() {
-      _properties.clear();
-      _properties.addAll(Property.sampleData);
       _isRefreshing = false;
     });
   }
+
+  List<Property> get _dealsOfTheDay => _filteredProperties
+      .where(
+        (p) =>
+            p.createdAt.year == DateTime.now().year &&
+            p.createdAt.month == DateTime.now().month &&
+            p.createdAt.day == DateTime.now().day,
+      )
+      .toList();
+
+  List<Property> get _otherProperties => _filteredProperties
+      .where(
+        (p) =>
+            !(p.createdAt.year == DateTime.now().year &&
+                p.createdAt.month == DateTime.now().month &&
+                p.createdAt.day == DateTime.now().day),
+      )
+      .toList();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final ScrollController? controller = widget.scrollController;
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -148,13 +219,18 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CompareScreen(properties: _properties),
+                builder: (context) =>
+                    CompareScreen(properties: _filteredProperties),
               ),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.map, size: 24),
-            onPressed: _toggleView,
+            onPressed: () {
+              setState(() {
+                _showMapView = !_showMapView;
+              });
+            },
             tooltip: _showMapView ? 'List View' : 'Map View',
           ),
         ],
@@ -206,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.black.withOpacity(0.05),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
-                              )
+                              ),
                             ],
                           ),
                           child: TextField(
@@ -222,10 +298,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical: 0,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.mic),
-                                onPressed: _onVoiceSearch,
                               ),
                             ),
                             onTap: _onSearchTap,
@@ -247,7 +319,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         child: Chip(
                                           label: GestureDetector(
-                                            onTap: () => _onSearchSubmit(search),
+                                            onTap: () =>
+                                                _onSearchSubmit(search),
                                             child: Text(search),
                                           ),
                                           deleteIcon: const Icon(
@@ -256,11 +329,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           onDeleted: () {
                                             setState(
-                                              () =>
-                                                  _recentSearches.remove(search),
+                                              () => _recentSearches.remove(
+                                                search,
+                                              ),
                                             );
                                           },
-                                          backgroundColor: theme.chipTheme.backgroundColor,
+                                          backgroundColor:
+                                              theme.chipTheme.backgroundColor,
                                         ),
                                       ),
                                     )
@@ -274,7 +349,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 sliver: SliverToBoxAdapter(
                   child: SizedBox(
                     height: 50,
@@ -352,8 +430,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       TextButton(
-                        onPressed: _goToDeals,
-                        child: const Text('View All', style: TextStyle(fontWeight: FontWeight.w600)),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DealsScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'View All',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),
@@ -364,10 +452,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 260,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _properties.length >= 2 ? 2 : _properties.length,
+                    itemCount: _dealsOfTheDay.length >= 2
+                        ? 2
+                        : _dealsOfTheDay.length,
                     itemBuilder: (context, index) {
-                      if (index >= _properties.length) return const SizedBox();
-                      final property = _properties[index];
+                      if (index >= _dealsOfTheDay.length) {
+                        return const SizedBox();
+                      }
+                      final property = _dealsOfTheDay[index];
                       return Container(
                         width: 280,
                         margin: EdgeInsets.only(
@@ -379,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             PropertyCard(
                               property: property,
                               isFeatured: true,
-                              isFavorite: widget.favorites.contains(property),
+                              isFavorite: _favoriteIds.contains(property.id),
                               onFavorite: () => _toggleFavorite(property),
                               onTap: () {
                                 // TODO: Navigate to property detail screen
@@ -408,8 +500,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       TextButton(
-                        onPressed: _goToTopPicks,
-                        child: const Text('See More', style: TextStyle(fontWeight: FontWeight.w600)),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TopPicksScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'See More',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),
@@ -420,11 +522,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 220,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _properties.length >= 4 ? 3 : (_properties.length - 1).clamp(0, 3),
+                    itemCount: _otherProperties.length >= 4
+                        ? 3
+                        : (_otherProperties.length - 1).clamp(0, 3),
                     itemBuilder: (context, index) {
-                      final safeIndex = (index + 1) < _properties.length ? (index + 1) : index;
-                      if (safeIndex >= _properties.length) return const SizedBox();
-                      final property = _properties[safeIndex];
+                      final safeIndex = (index + 1) < _otherProperties.length
+                          ? (index + 1)
+                          : index;
+                      if (safeIndex >= _otherProperties.length) {
+                        return const SizedBox();
+                      }
+                      final property = _otherProperties[safeIndex];
                       return Container(
                         width: 280,
                         margin: EdgeInsets.only(
@@ -434,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: PropertyCard(
                           property: property,
                           isRecommended: true,
-                          isFavorite: widget.favorites.contains(property),
+                          isFavorite: _favoriteIds.contains(property.id),
                           onFavorite: () => _toggleFavorite(property),
                           onTap: () {
                             // TODO: Navigate to property detail screen
@@ -465,7 +573,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(width: 4),
                           Text(
                             'Max: \$${_priceRange.toInt()}',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -476,30 +587,30 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 sliver: _showMapView
-                    ? SliverToBoxAdapter(
-                        child: _buildMapPlaceholder(context),
-                      )
+                    ? SliverToBoxAdapter(child: _buildMapPlaceholder(context))
                     : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            if (index >= _properties.length) return const SizedBox();
-                            final property = _properties[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                              child: PropertyCard(
-                                property: property,
-                                isNew: index % 3 == 0,
-                                isFavorite: widget.favorites.contains(property),
-                                onFavorite: () => _toggleFavorite(property),
-                                onTap: () {
-                                  // TODO: Navigate to property detail screen
-                                },
-                                isRecommended: false,
-                              ),
-                            );
-                          },
-                          childCount: _properties.length,
-                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          if (index >= _otherProperties.length) {
+                            return const SizedBox();
+                          }
+                          final property = _otherProperties[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 8,
+                            ),
+                            child: PropertyCard(
+                              property: property,
+                              isNew: index % 3 == 0,
+                              isFavorite: _favoriteIds.contains(property.id),
+                              onFavorite: () => _toggleFavorite(property),
+                              onTap: () {
+                                // TODO: Navigate to property detail screen
+                              },
+                              isRecommended: false,
+                            ),
+                          );
+                        }, childCount: _otherProperties.length),
                       ),
               ),
             ],
@@ -513,7 +624,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: _refreshProperties,
           backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
           child: _isRefreshing
-              ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+              ? const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                )
               : const Icon(Icons.refresh, color: Colors.white, size: 22),
         ),
       ),
@@ -572,10 +686,7 @@ class _HomeScreenState extends State<HomeScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.blue[50]!,
-            Colors.blue[100]!,
-          ],
+          colors: [Colors.blue[50]!, Colors.blue[100]!],
         ),
       ),
       child: Stack(
@@ -584,14 +695,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.map_rounded,
-                  size: 64,
-                  color: Colors.blue[700],
-                ),
+                Icon(Icons.map_rounded, size: 64, color: Colors.blue[700]),
                 const SizedBox(height: 16),
                 Text(
-                  'Map View Showing ${_properties.length} Properties',
+                  'Map View Showing ${_otherProperties.length} Properties',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -607,7 +714,11 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 0,
             child: Center(
               child: ElevatedButton.icon(
-                onPressed: _toggleView,
+                onPressed: () {
+                  setState(() {
+                    _showMapView = !_showMapView;
+                  });
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[700],
                   foregroundColor: Colors.white,
@@ -683,7 +794,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600)),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -700,7 +814,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Apply', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                          child: const Text(
+                            'Apply',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],

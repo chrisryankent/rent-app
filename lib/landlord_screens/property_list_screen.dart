@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/property.dart';
 import 'property_detail_screen.dart';
 import 'edit_property_screen.dart';
-import 'property_upload_form.dart';
 import '../theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -23,22 +24,57 @@ class PropertyListScreen extends StatefulWidget {
 }
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
-  final List<Property> _properties = List<Property>.from(Property.sampleData);
-  final String _currentLandlordId = 'landlord123';
+  List<Property> _properties = [];
+  String _currentLandlordId = '';
   String _searchQuery = '';
   PropertySortOption _sortOption = PropertySortOption.newestFirst;
   PropertyStatus _filterStatus = PropertyStatus.active;
+  bool _isLoading = true;
 
-  void _addProperty(Property property) {
-    setState(() {
-      _properties.insert(0, property);
-    });
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _currentLandlordId = user.uid;
+      _fetchProperties();
+    }
   }
 
-  void _editProperty(int index, Property updated) {
-    setState(() {
-      _properties[index] = updated;
-    });
+  Future<void> _fetchProperties() async {
+    setState(() => _isLoading = true);
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('properties')
+          .where('ownerId', isEqualTo: _currentLandlordId)
+          .get();
+      _properties = snapshot.docs
+          .map((doc) => Property.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      _properties = [];
+    }
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _addProperty(Property property) async {
+    final docRef = await FirebaseFirestore.instance
+        .collection('properties')
+        .add({
+          ...propertyToMap(property),
+          'ownerId': _currentLandlordId,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+    _fetchProperties();
+  }
+
+  Future<void> _editProperty(int index, Property updated) async {
+    final docId = _properties[index].id;
+    await FirebaseFirestore.instance
+        .collection('properties')
+        .doc(docId)
+        .update(propertyToMap(updated));
+    _fetchProperties();
   }
 
   Future<void> _deleteProperty(int index) async {
@@ -59,11 +95,13 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         ],
       ),
     );
-
     if (confirmed == true) {
-      setState(() {
-        _properties.removeAt(index);
-      });
+      final docId = _properties[index].id;
+      await FirebaseFirestore.instance
+          .collection('properties')
+          .doc(docId)
+          .delete();
+      _fetchProperties();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Property deleted successfully'),
@@ -71,6 +109,19 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         ),
       );
     }
+  }
+
+  Map<String, dynamic> propertyToMap(Property property) {
+    // Convert Property to Map for Firestore (add all fields as needed)
+    return {
+      'title': property.title,
+      'address': property.address,
+      'description': property.description,
+      'rentAmount': property.rentAmount,
+      'status': property.status.name,
+      'propertyTypes': property.propertyTypes.map((e) => e.name).toList(),
+      // ...add all other fields as needed...
+    };
   }
 
   List<Property> get _filteredProperties {
@@ -624,7 +675,8 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                         '${property.squareFootage?.toStringAsFixed(0)} sqft',
                         Icons.square_foot,
                       ),
-                      if (property.amenities != null && property.amenities!.contains('Parking'))
+                      if (property.amenities != null &&
+                          property.amenities!.contains('Parking'))
                         _buildFeatureChip(
                           theme,
                           'Parking',

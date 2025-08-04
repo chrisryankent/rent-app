@@ -169,7 +169,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       icon: Icons.bathtub,
                       text: '${widget.property.bathrooms ?? '-'} Bathrooms',
                     ),
-                    if (widget.property.kitchenAppliances != null && widget.property.kitchenAppliances!.isNotEmpty)
+                    if (widget.property.kitchenAppliances != null &&
+                        widget.property.kitchenAppliances!.isNotEmpty)
                       FeatureChip(
                         icon: Icons.kitchen,
                         text: 'Kitchen Appliances',
@@ -216,7 +217,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          '${widget.property.address}',
+                          widget.property.address,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.primary,
                           ),
@@ -308,7 +309,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ChatScreen(landlord: widget.owner),
+              builder: (context) =>
+                  ChatScreen(landlord: widget.owner, property: widget.property),
             ),
           ),
         ),

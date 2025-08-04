@@ -1,13 +1,109 @@
 // TODO Implement this library.
 // favorites_screen.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
+import '../tenant_screens/room_detail_screen.dart';
+import '../models/user.dart' as app_user;
 
-class FavoritesScreen extends StatelessWidget {
-  final List<Property> favorites;
+class FavoritesScreen extends StatefulWidget {
+  const FavoritesScreen({super.key});
 
-  const FavoritesScreen({super.key, required this.favorites});
+  @override
+  State<FavoritesScreen> createState() => _FavoritesScreenState();
+}
+
+class _FavoritesScreenState extends State<FavoritesScreen> {
+  late final String userId;
+  late final FirebaseFirestore firestore;
+  late final FirebaseAuth auth;
+  List<Property> favorites = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    firestore = FirebaseFirestore.instance;
+    auth = FirebaseAuth.instance;
+    final user = auth.currentUser;
+    if (user != null) {
+      userId = user.uid;
+      _fetchFavorites();
+    } else {
+      userId = '';
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _fetchFavorites() async {
+    setState(() => isLoading = true);
+    try {
+      final favSnap = await firestore
+          .collection('users')
+          .doc(userId)
+          .collection('favorites')
+          .get();
+      final propertyIds = favSnap.docs.map((doc) => doc.id).toList();
+      if (propertyIds.isEmpty) {
+        setState(() {
+          favorites = [];
+          isLoading = false;
+        });
+        return;
+      }
+      final propSnap = await firestore
+          .collection('properties')
+          .where(FieldPath.documentId, whereIn: propertyIds)
+          .get();
+      setState(() {
+        favorites = propSnap.docs
+            .map((doc) => Property.fromFirestore(doc))
+            .toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        favorites = [];
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite(Property property) async {
+    final favRef = firestore
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .doc(property.id);
+    final favDoc = await favRef.get();
+    if (favDoc.exists) {
+      await favRef.delete();
+    } else {
+      await favRef.set({'addedAt': FieldValue.serverTimestamp()});
+    }
+    _fetchFavorites();
+  }
+
+  void _navigateToDetail(Property property) async {
+    final landlordSnap = await firestore
+        .collection('users')
+        .doc(property.ownerId)
+        .get();
+    final landlord = app_user.User.fromFirestore(landlordSnap);
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PropertyDetailScreen(
+          property: property,
+          onFavorite: () => _toggleFavorite(property),
+          isFavorite: true,
+          owner: landlord,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +119,15 @@ class FavoritesScreen extends StatelessWidget {
         titleTextStyle: theme.appBarTheme.titleTextStyle,
         actions: [
           IconButton(
-            icon: const Icon(Icons.dashboard_customize),
-            onPressed: () {},
+            icon: const Icon(Icons.refresh),
+            onPressed: _fetchFavorites,
+            tooltip: 'Refresh',
           ),
         ],
       ),
-      body: favorites.isEmpty
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : favorites.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -72,13 +171,11 @@ class FavoritesScreen extends StatelessWidget {
                       return PropertyCard(
                         property: property,
                         isFavorite: true,
-                        onFavorite: () {},
-                        onTap: () {
-                          // TODO: Navigate to property detail screen
-                        },
-                        isNew: true,
-                        isRecommended: true,
-                        isFeatured: false,
+                        onFavorite: () => _toggleFavorite(property),
+                        onTap: () => _navigateToDetail(property),
+                        isNew: property.isNew ?? false,
+                        isRecommended: property.isRecommended ?? false,
+                        isFeatured: property.isFeatured ?? false,
                       );
                     }, childCount: favorites.length),
                   ),

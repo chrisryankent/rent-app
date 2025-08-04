@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:rental_connect/register_screen.dart';
 import 'package:rental_connect/tenant_screens/bottom_navbar.dart';
 import 'landlord_screens/landlord_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -15,6 +17,45 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String _selectedRole = 'Tenant';
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  Future<void> _loginUser() async {
+    setState(() => _isLoading = true);
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      final userId = credential.user?.uid;
+      if (userId == null) throw Exception('User not found');
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (!userDoc.exists) throw Exception('User profile not found');
+      final userType = userDoc['type'] ?? 'tenant';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('lastUserId', userId);
+      await prefs.setString('lastUserType', userType);
+      if (userType == 'tenant') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainApp()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LandlordMainApp()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Login failed: $e')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,25 +150,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  if (_selectedRole == 'Tenant') {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MainApp()),
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LandlordMainApp(),
+                onPressed: _isLoading ? null : _loginUser,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Login',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                    );
-                  }
-                },
-                child: const Text(
-                  'Login',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
               ),
               const SizedBox(height: 16),
               Row(

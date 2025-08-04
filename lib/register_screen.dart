@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'models/user.dart';
+import 'package:rental_connect/landlord_screens/landlord_bottom_navbar.dart';
+import 'package:rental_connect/tenant_screens/bottom_navbar.dart';
+import 'models/user.dart' as app;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,6 +20,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _phoneController = TextEditingController();
   String _selectedRole = 'Tenant';
   bool _obscurePassword = true;
+
+  Future<void> _registerUser() async {
+    try {
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+      final user = app.User(
+        id:
+            credential.user?.uid ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        type: _selectedRole == 'Tenant'
+            ? app.UserType.tenant
+            : app.UserType.owner,
+        isVerified: credential.user?.emailVerified ?? false,
+      );
+      await FirebaseFirestore.instance.collection('users').doc(user.id).set({
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'phone': user.phone,
+        'type': user.type.name,
+        'isVerified': user.isVerified,
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Registration successful!')));
+      if (user.type == app.UserType.tenant) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainApp()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LandlordBottomNavBar(
+              currentIndex: 0,
+              onTap: (index) {},
+              onCreate: () {},
+            ),
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.message}')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,25 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      final user = User(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        name: _nameController.text.trim(),
-                        email: _emailController.text.trim(),
-                        phone: _phoneController.text.trim(),
-                        type: _selectedRole == 'Tenant'
-                            ? UserType.tenant
-                            : UserType.owner,
-                        isVerified: false,
-                      );
-                      // For now, just print/log the user object
-                      print(
-                        'Registered user: \nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone}\nType: ${user.type}',
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Registration successful!'),
-                        ),
-                      );
+                      _registerUser();
                     }
                   },
                   child: const Text(
